@@ -17,13 +17,13 @@ module.exports = async function handler(req, res) {
 
 조건:
 - ${ageLabel} 아이를 위한 쉬운 단어 사용
-- 반드시 기승전결 구조로 7~10문장
+- 기승전결 구조로 7~10문장
 - 기: ${animal} 소개와 상황 (1~2문장)
 - 승: 문제나 사건 발생 (2~3문장)
 - 전: "${word}"의 의미가 자연스럽게 등장 (2~3문장)
 - 결: 따뜻하고 행복한 마무리 (1~2문장)
 - 아이가 읽으면 미소 지을 수 있는 따뜻한 내용
-- 동화 본문만 출력하고 제목이나 다른 말은 하지 마세요`;
+- 동화 본문만 출력하고 제목이나 다른 말은 절대 하지 마세요`;
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
     });
     if (!response.ok) {
       const errBody = await response.text();
-      throw new Error(`Anthropic API 오류: ${response.status} / ${errBody}`);
+      throw new Error(`API 오류: ${response.status} / ${errBody}`);
     }
     const data = await response.json();
     const story = data.content.map(i => i.text || '').join('').trim();
