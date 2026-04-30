@@ -55,6 +55,7 @@
         <div class="quick-chips" id="quickChips"></div>
       </div>
     </div>
+
     <div class="home-bottom-banner">
       <span>📖 매일 새 단어로 아이와 대화를 시작해보세요</span>
     </div>
@@ -141,14 +142,14 @@
     </div>
   </div>
 
-  <!-- 태그 관련 단어 팝업 -->
+  <!-- 태그 관련 단어 시트 -->
   <div class="sheet-overlay hidden" id="tagSheetOverlay" onclick="hideTagSheet()">
     <div class="age-sheet" onclick="event.stopPropagation()">
       <div class="sheet-header">
         <div class="sheet-title" id="tagSheetTitle">#감정 관련 단어</div>
-        <button class="sheet-close" onclick="hideTagSheet()">✕</button>
+        <button class="sheet-close-btn" onclick="hideTagSheet()">✕</button>
       </div>
-      <div class="tag-related-loading" id="tagRelatedLoading">
+      <div class="tag-related-loading hidden" id="tagRelatedLoading">
         <div class="loading-dots"><span></span><span></span><span></span></div>
       </div>
       <div class="tag-related-chips" id="tagRelatedChips"></div>
@@ -183,7 +184,7 @@
   <!-- 만족도 조사 -->
   <div class="sheet-overlay hidden" id="surveyOverlay">
     <div class="age-sheet" onclick="event.stopPropagation()">
-      <button class="sheet-close" onclick="closeSurvey(true)">✕</button>
+      <button class="sheet-close-btn survey-x" onclick="closeSurvey(true)">✕</button>
       <div class="survey-emoji-big">💚</div>
       <div class="survey-title">앱이 마음에 드셨나요?</div>
       <div class="survey-sub">솔직한 의견이 큰 도움이 돼요</div>
