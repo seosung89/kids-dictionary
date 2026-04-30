@@ -6,20 +6,27 @@
   <meta name="description" content="아이 눈높이에 맞춘 나이별 국어사전" />
   <title>우리 아이 국어사전</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
   <div class="bg-decoration">
     <div class="circle c1"></div>
     <div class="circle c2"></div>
     <div class="circle c3"></div>
   </div>
 
-  <div class="container">
+  <!-- 상단 홍보 배너 -->
+  <div class="top-banner" id="topBanner">
+    <span class="banner-text">🌿 우리 아이 국어사전 — 매일 새 단어로 아이와 대화를 시작해보세요</span>
+    <button class="banner-close" onclick="closeBanner()">✕</button>
+  </div>
+
+  <div class="container" id="mainContainer">
     <header class="header">
       <div class="logo">
-        <span class="logo-icon">📖</span>
+        <div class="logo-icon">📖</div>
         <div>
           <h1 class="logo-title">우리 아이 국어사전</h1>
           <p class="logo-sub">나이에 맞게 쉽게 설명해드려요</p>
@@ -30,36 +37,28 @@
     <section class="age-section">
       <p class="section-label">아이 나이를 골라주세요</p>
       <div class="age-tabs">
-        <button class="age-tab" data-age="3">
-          <span class="age-emoji">🐣</span>
-          <span class="age-text">3~4살</span>
-        </button>
-        <button class="age-tab active" data-age="5">
-          <span class="age-emoji">🐥</span>
-          <span class="age-text">5~6살</span>
-        </button>
-        <button class="age-tab" data-age="7">
-          <span class="age-emoji">🐓</span>
-          <span class="age-text">7~8살</span>
-        </button>
-        <button class="age-tab" data-age="10">
-          <span class="age-emoji">🦅</span>
-          <span class="age-text">9~10살</span>
-        </button>
+        <button class="age-tab" data-age="3"><span class="age-emoji">🐣</span><span class="age-text">3~4살</span></button>
+        <button class="age-tab active" data-age="5"><span class="age-emoji">🐥</span><span class="age-text">5~6살</span></button>
+        <button class="age-tab" data-age="7"><span class="age-emoji">🐓</span><span class="age-text">7~8살</span></button>
+        <button class="age-tab" data-age="10"><span class="age-emoji">🦅</span><span class="age-text">9~10살</span></button>
       </div>
     </section>
 
     <section class="search-section">
       <div class="search-box">
         <span class="search-icon">🔍</span>
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="궁금한 단어를 입력해봐요..."
-          autocomplete="off"
-        />
-        <button class="search-btn" id="searchBtn" onclick="searchWord()">찾기</button>
+        <input type="text" id="searchInput" class="search-input" placeholder="궁금한 단어를 입력해봐요..." autocomplete="off" />
+        <button class="search-btn" onclick="searchWord()">찾기</button>
+      </div>
+    </section>
+
+    <section class="today-section">
+      <div class="today-card">
+        <div class="today-left">
+          <span class="today-badge">💡 오늘의 단어</span>
+          <span class="today-word" id="todayWord">불러오는 중...</span>
+        </div>
+        <button class="today-btn" id="todayBtn" onclick="searchTodayWord()">찾아보기 →</button>
       </div>
     </section>
 
@@ -81,6 +80,31 @@
     </section>
 
     <section id="resultSection"></section>
+
+    <!-- 하단 고정 배너 -->
+    <div class="bottom-banner">
+      <span class="bottom-banner-text">📖 우리 아이 국어사전 — 아이와 함께 매일 새 단어를 발견해요</span>
+    </div>
+  </div>
+
+  <!-- 만족도 조사 팝업 -->
+  <div class="survey-overlay" id="surveyOverlay" style="display:none">
+    <div class="survey-modal">
+      <button class="survey-close" onclick="closeSurvey(false)">✕</button>
+      <div class="survey-emoji">💚</div>
+      <h2 class="survey-title">앱이 마음에 드셨나요?</h2>
+      <p class="survey-sub">솔직한 의견이 큰 도움이 돼요</p>
+      <div class="star-row" id="starRow">
+        <span class="star" data-v="1" onclick="setStar(1)">★</span>
+        <span class="star" data-v="2" onclick="setStar(2)">★</span>
+        <span class="star" data-v="3" onclick="setStar(3)">★</span>
+        <span class="star" data-v="4" onclick="setStar(4)">★</span>
+        <span class="star" data-v="5" onclick="setStar(5)">★</span>
+      </div>
+      <textarea id="surveyComment" class="survey-input" placeholder="한 줄 의견을 남겨주세요 (선택)"></textarea>
+      <button class="survey-submit" id="surveySubmit" onclick="submitSurvey()" disabled>보내기</button>
+      <button class="survey-skip" onclick="closeSurvey(true)">다음에 할게요</button>
+    </div>
   </div>
 
   <script src="app.js"></script>
