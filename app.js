@@ -1,14 +1,18 @@
+// ── 상수 ────────────────────────────────
 const QUICK_WORDS = {
-  3: ['사랑', '엄마', '아빠', '친구', '행복', '울다', '웃다', '나누다'],
-  5: ['사랑', '우정', '감사', '용기', '질투', '거짓말', '배려', '행복'],
-  7: ['우정', '용기', '책임', '정직', '감사', '존중', '노력', '희망'],
+  3:  ['사랑', '엄마', '아빠', '친구', '행복', '울다', '웃다', '나누다'],
+  5:  ['사랑', '우정', '감사', '용기', '질투', '거짓말', '배려', '행복'],
+  7:  ['우정', '용기', '책임', '정직', '감사', '존중', '노력', '희망'],
   10: ['민주주의', '자유', '평화', '경제', '책임', '정의', '환경', '문화'],
 };
+
+const STORY_LOADING_MSGS = [
   { emoji: '🐰', text: '토끼가 연필을 잡았어요...' },
   { emoji: '🐻', text: '곰이 이야기를 생각하고 있어요...' },
   { emoji: '🦊', text: '여우가 이야기를 꾸미고 있어요...' },
   { emoji: '🐿️', text: '다람쥐가 이야기를 쓰고 있어요...' },
 ];
+
 const SEARCH_LOADING_MSGS = [
   { emoji: '🔍', msg: '찾아볼게요!', sub: '열심히 설명을 준비하고 있어요...' },
   { emoji: '📖', msg: '사전을 펼치고 있어요!', sub: '쉬운 말로 바꾸는 중이에요...' },
@@ -16,6 +20,7 @@ const SEARCH_LOADING_MSGS = [
   { emoji: '🌿', msg: '거의 다 됐어요!', sub: '조금만 기다려주세요...' },
 ];
 
+// ── 상태 ────────────────────────────────
 let currentAge = parseInt(localStorage.getItem('kidsDict_age') || '5');
 let searchHistory = JSON.parse(localStorage.getItem('kidsDict_history') || '[]');
 let searchCount = parseInt(localStorage.getItem('kidsDict_searchCount') || '0');
@@ -25,6 +30,7 @@ let currentWord = '';
 let currentResult = null;
 let storyGenerated = false;
 
+// ── 초기화 ──────────────────────────────
 function init() {
   setActiveAgeOption(currentAge);
   updateAgeBadge(currentAge);
@@ -37,21 +43,13 @@ function init() {
   });
 }
 
-// ── 자주 찾는 단어 ────────────────────────
-function renderQuickWords() {
-  const words = QUICK_WORDS[currentAge] || QUICK_WORDS[5];
-  const container = document.getElementById('quickChips');
-  container.innerHTML = words
-    .map(w => `<button class="qchip" onclick="quickSearch('${w}')">${w}</button>`)
-    .join('');
-}
-
-// ── 화면 전환 ───────────────────────────
+// ── 화면 전환 ────────────────────────────
 function goResult() {
   document.getElementById('homeScreen').classList.add('hidden');
   document.getElementById('resultScreen').classList.remove('hidden');
   window.history.pushState({ page: 'result' }, '');
 }
+
 function goHome() {
   document.getElementById('resultScreen').classList.add('hidden');
   document.getElementById('homeScreen').classList.remove('hidden');
@@ -64,40 +62,59 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('hidden', c.id !== `tab-${tab}`));
 }
 
+// ── 자주 찾는 단어 ───────────────────────
+function renderQuickWords() {
+  const words = QUICK_WORDS[currentAge] || QUICK_WORDS[5];
+  document.getElementById('quickChips').innerHTML = words
+    .map(w => `<button class="qchip" onclick="quickSearch('${w}')">${w}</button>`)
+    .join('');
+}
+
 // ── 오늘의 단어 ──────────────────────────
 async function renderTodayWord() {
   const today = new Date();
-  const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+  const dateKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
   const ageKey = `kidsDict_daily_${dateKey}_${currentAge}`;
   const card = document.getElementById('todayCard');
   card.classList.add('loading');
 
+  // 캐시 확인
   const cached = localStorage.getItem(ageKey);
   if (cached) {
-    try { applyTodayWord(JSON.parse(cached)); card.classList.remove('loading'); return; } catch(e) {}
+    try {
+      applyTodayWord(JSON.parse(cached));
+      card.classList.remove('loading');
+      return;
+    } catch (e) {}
   }
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+  // API 호출
+  const ageLabel = { 3: '3~4살', 5: '5~6살', 7: '7~8살', 10: '9~10살' }[currentAge];
   try {
     const res = await fetch('/api/daily', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ageLabel, date: dateKey })
     });
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error('daily API 오류');
     const data = await res.json();
     localStorage.setItem(ageKey, JSON.stringify(data));
     applyTodayWord(data);
-  } catch {
-    document.getElementById('todayWord').textContent = '감사';
-    document.getElementById('todayEmoji').textContent = '🙏';
-  } finally { card.classList.remove('loading'); }
+  } catch (e) {
+    // 실패 시 나이별 기본값
+    const fallbacks = { 3: '행복', 5: '감사', 7: '용기', 10: '책임' };
+    applyTodayWord({ word: fallbacks[currentAge] || '감사', emoji: '🌟', reason: '탭해서 알아보기 →' });
+    console.error(e);
+  } finally {
+    card.classList.remove('loading');
+  }
 }
 
 function applyTodayWord(data) {
   document.getElementById('todayWord').textContent = data.word;
   document.getElementById('todayEmoji').textContent = data.emoji || '💡';
   const hint = document.getElementById('todayHint');
-  if (hint && data.reason) hint.textContent = data.reason;
+  if (hint) hint.textContent = data.reason || '탭해서 알아보기 →';
 }
 
 function searchTodayWord() {
@@ -121,7 +138,7 @@ function setAge(age) {
 }
 
 function updateAgeBadge(age) {
-  const labels = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' };
+  const labels = { 3: '3~4살', 5: '5~6살', 7: '7~8살', 10: '9~10살' };
   document.getElementById('ageBadgeText').textContent = labels[age];
 }
 
@@ -179,32 +196,32 @@ function shareText(text) {
   }
 }
 
-// ── 태그 관련 단어 ─────────────────────────
+// ── 태그 관련 단어 ───────────────────────
 async function showTagSheet(tag) {
   const overlay = document.getElementById('tagSheetOverlay');
-  const title = document.getElementById('tagSheetTitle');
   const loading = document.getElementById('tagRelatedLoading');
   const chips = document.getElementById('tagRelatedChips');
 
-  title.textContent = `#${tag} 관련 단어`;
+  document.getElementById('tagSheetTitle').textContent = `#${tag} 관련 단어`;
   chips.innerHTML = '';
-  loading.style.display = 'flex';
+  loading.classList.remove('hidden');
   overlay.classList.remove('hidden');
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+  const ageLabel = { 3: '3~4살', 5: '5~6살', 7: '7~8살', 10: '9~10살' }[currentAge];
   try {
     const res = await fetch('/api/related', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tag, ageLabel })
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
-    loading.style.display = 'none';
+    loading.classList.add('hidden');
     chips.innerHTML = (data.words || []).map(w =>
       `<button class="tag-related-chip" onclick="hideTagSheet(); quickSearch('${esc(w)}')">${esc(w)}</button>`
     ).join('');
   } catch {
-    loading.style.display = 'none';
+    loading.classList.add('hidden');
     chips.innerHTML = '<p style="font-size:14px;color:#B0A898;padding:0.5rem">단어를 불러오지 못했어요 😥</p>';
   }
 }
@@ -217,19 +234,23 @@ function checkSurvey(trigger) {
   if (trigger === 'search' && searchCount >= 3) setTimeout(() => showSurvey(), 800);
   if (trigger === 'story') setTimeout(() => showSurvey(), 1500);
 }
+
 function showSurvey() {
   if (surveyDone) return;
   document.getElementById('surveyOverlay').classList.remove('hidden');
 }
+
 function closeSurvey(done) {
   document.getElementById('surveyOverlay').classList.add('hidden');
   if (done) { surveyDone = true; localStorage.setItem('kidsDict_surveyDone', 'true'); }
 }
+
 function setStar(v) {
   selectedStar = v;
   document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('active', i < v));
   document.getElementById('surveySubmit').disabled = false;
 }
+
 function submitSurvey() {
   console.log('만족도:', { star: selectedStar, comment: document.getElementById('surveyComment').value.trim() });
   surveyDone = true;
@@ -240,6 +261,7 @@ function submitSurvey() {
 
 // ── 단어 링크 렌더링 ─────────────────────
 function renderLinkedDef(text) {
+  if (!text) return '';
   return text.replace(/\[([^\]]+)\]/g, (_, w) => {
     const safe = w.replace(/'/g, "\\'");
     return `<span class="word-link" onclick="quickSearch('${safe}')">${w}</span>`;
@@ -279,33 +301,35 @@ async function searchWord() {
   document.getElementById('resultContent').classList.add('hidden');
   document.getElementById('resultHeaderWord').textContent = word;
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+  const ageLabel = { 3: '3~4살', 5: '5~6살', 7: '7~8살', 10: '9~10살' }[currentAge];
 
   try {
     const res = await fetch('/api/search', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ word, ageLabel })
     });
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
     const p = await res.json();
     currentResult = p;
     renderResult(word, p);
     checkSurvey('search');
-  } catch {
+  } catch (err) {
     document.getElementById('loadingEmoji').textContent = '😥';
     document.getElementById('loadingMsg').textContent = '앗, 오류가 났어요';
     document.getElementById('loadingSub').textContent = '잠시 후 다시 시도해봐요';
+    console.error(err);
   }
 }
 
 // ── 결과 렌더링 ──────────────────────────
 function renderResult(word, p) {
-  document.getElementById('wordEmoji').textContent = p.emoji;
+  document.getElementById('wordEmoji').textContent = p.emoji || '📖';
   document.getElementById('wordBig').textContent = word;
   document.getElementById('wordReading').textContent = p.reading || '';
 
   document.getElementById('explainDef').innerHTML = renderLinkedDef(p.definition);
-  document.getElementById('explainExample').innerHTML = renderLinkedDef(p.example.replace(/^"|"$/g, ''));
+  document.getElementById('explainExample').innerHTML = renderLinkedDef((p.example || '').replace(/^"|"$/g, ''));
 
   document.getElementById('synonymChips').innerHTML = (p.synonyms || [])
     .map(w => `<button class="wchip" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
@@ -326,20 +350,22 @@ function renderResult(word, p) {
     </div>`;
 
   // 버튼 연결
-  const speakText = `${word}. ${p.definition.replace(/\[[^\]]+\]/g, m => m.slice(1,-1))} 예를 들면, ${p.example.replace(/^"|"$/g, '')}`;
+  const speakText = `${word}. ${(p.definition || '').replace(/\[[^\]]+\]/g, m => m.slice(1,-1))} 예를 들면, ${(p.example || '').replace(/^"|"$/g, '')}`;
   const ttsBtn = document.getElementById('ttsBtn');
   const shareBtn = document.getElementById('shareBtn');
   const retryBtn = document.getElementById('retryBtn');
 
   ttsBtn.onclick = () => speak(speakText, ttsBtn);
-  shareBtn.onclick = () => shareText(`📖 우리 아이 국어사전\n\n"${word}"\n${p.definition.replace(/\[[^\]]+\]/g, m => m.slice(1,-1))}\n\n예문: ${p.example.replace(/^"|"$/g, '')}\n\n아이와 함께 단어를 배워요 🌿`);
+  shareBtn.onclick = () => shareText(
+    `📖 우리 아이 국어사전\n\n"${word}"\n${(p.definition || '').replace(/\[[^\]]+\]/g, m => m.slice(1,-1))}\n\n예문: ${(p.example || '').replace(/^"|"$/g, '')}\n\n아이와 함께 단어를 배워요 🌿`
+  );
   retryBtn.onclick = () => searchWord();
 
   document.getElementById('resultLoading').classList.add('hidden');
   document.getElementById('resultContent').classList.remove('hidden');
 }
 
-// ── 미니 동화 ────────────────────────────
+// ── 동화 ────────────────────────────────
 async function makeStory() {
   if (storyGenerated) return;
 
@@ -350,11 +376,12 @@ async function makeStory() {
       <p class="story-loading-text">${lm.text}</p>
     </div>`;
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+  const ageLabel = { 3: '3~4살', 5: '5~6살', 7: '7~8살', 10: '9~10살' }[currentAge];
 
   try {
     const res = await fetch('/api/story', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ word: currentWord, ageLabel })
     });
     if (!res.ok) throw new Error();
@@ -371,7 +398,7 @@ async function makeStory() {
           <button class="btn-base" id="storyTtsBtn">🔊 읽어주기</button>
           <button class="btn-base" id="storyShareBtn">🔗 공유</button>
         </div>
-        <div class="story-actions-2">
+        <div class="action-row" style="margin-top:8px">
           <button class="btn-amber full" onclick="restartStory()">🔄 다시 만들기</button>
         </div>
       </div>`;
@@ -406,6 +433,7 @@ function restartStory() {
 
 // ── 토스트 ──────────────────────────────
 function showToast(msg) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
   const t = document.createElement('div');
   t.className = 'toast'; t.textContent = msg;
   document.body.appendChild(t);
@@ -415,7 +443,9 @@ function showToast(msg) {
 // ── 유틸 ────────────────────────────────
 function esc(str) {
   if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 init();
