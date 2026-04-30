@@ -48,7 +48,8 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      throw new Error(`Anthropic API 오류: ${response.status}`);
+      const errBody = await response.text();
+      throw new Error(`Anthropic API 오류: ${response.status} / ${errBody}`);
     }
 
     const data = await response.json();
@@ -59,6 +60,6 @@ export default async function handler(req, res) {
     return res.status(200).json(parsed);
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ error: '검색 중 오류가 발생했어요.' });
+    return res.status(500).json({ error: err.message });
   }
 }
