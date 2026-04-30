@@ -1,4 +1,4 @@
-[README.md](https://github.com/user-attachments/files/27235512/README.md)
+[README.md](https://github.com/user-attachments/files/27244504/README.md)
 # 우리 아이 국어사전 🐣
 
 나이에 맞게 단어를 쉽게 설명해주는 어린이 전용 국어사전 웹앱이에요.
