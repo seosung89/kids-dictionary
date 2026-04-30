@@ -15,8 +15,8 @@ module.exports = async function handler(req, res) {
 {
   "emoji": "단어를 나타내는 이모지 1개",
   "reading": "읽는 법 (예: [사랑])",
-  "definition": "${ageLabel} 아이가 이해할 수 있는 쉬운 설명. 2~3문장. 아이가 모를 수 있는 단어는 [단어] 형식으로 대괄호로 감싸주세요.",
-  "example": "일상에서 쓸 수 있는 짧은 예문 1개. 예문 안에서도 아이가 모를 수 있는 단어는 [단어] 형식으로 대괄호로 감싸주세요.",
+  "definition": "${ageLabel} 아이가 이해할 수 있는 쉬운 설명. 2~3문장. 아이가 모를 수 있는 단어는 [단어] 형식으로 감싸주세요.",
+  "example": "일상 예문 1개. 아이가 모를 수 있는 단어는 [단어] 형식으로 감싸주세요.",
   "synonyms": ["비슷한 말 2~3개"],
   "antonyms": ["반대 말 1~2개"],
   "related": ["연관 단어 3개"],
@@ -39,11 +39,11 @@ module.exports = async function handler(req, res) {
     });
     if (!response.ok) {
       const errBody = await response.text();
-      throw new Error(`Anthropic API 오류: ${response.status} / ${errBody}`);
+      throw new Error(`API 오류: ${response.status} / ${errBody}`);
     }
     const data = await response.json();
-    const rawText = data.content.map(i => i.text || '').join('');
-    const clean = rawText.replace(/```json|```/g, '').trim();
+    const raw = data.content.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
     return res.status(200).json(JSON.parse(clean));
   } catch (err) {
     console.error(err);
