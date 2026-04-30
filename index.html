@@ -114,19 +114,16 @@
       <!-- 탭 -->
       <div class="tab-bar">
         <button class="tab active" data-tab="explain" onclick="switchTab('explain')">설명</button>
-        <button class="tab" data-tab="words" onclick="switchTab('words')">단어</button>
         <button class="tab" data-tab="story" onclick="switchTab('story')">동화</button>
       </div>
 
-      <!-- 설명 탭 -->
+      <!-- 설명 탭 (설명 + 단어 + 태그 통합) -->
       <div class="tab-content active" id="tab-explain">
         <div class="explain-def" id="explainDef"></div>
-        <div class="explain-example" id="explainExample"></div>
-        <div class="explain-tags" id="explainTags"></div>
-      </div>
 
-      <!-- 단어 탭 -->
-      <div class="tab-content hidden" id="tab-words">
+        <div class="example-label">예문</div>
+        <div class="explain-example" id="explainExample"></div>
+
         <div class="word-group">
           <div class="word-group-label">비슷한 말</div>
           <div class="word-group-chips" id="synonymChips"></div>
@@ -138,6 +135,10 @@
         <div class="word-group">
           <div class="word-group-label">연관 단어</div>
           <div class="word-group-chips" id="relatedChips"></div>
+        </div>
+        <div class="word-group">
+          <div class="word-group-label">태그</div>
+          <div class="explain-tags" id="explainTags"></div>
         </div>
       </div>
 
