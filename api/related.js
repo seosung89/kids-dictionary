@@ -33,11 +33,11 @@ ${ageLabel} 아이가 배우기 좋은 단어들로 선택해주세요.
     });
     if (!response.ok) {
       const errBody = await response.text();
-      throw new Error(`Anthropic API 오류: ${response.status} / ${errBody}`);
+      throw new Error(`API 오류: ${response.status} / ${errBody}`);
     }
     const data = await response.json();
-    const rawText = data.content.map(i => i.text || '').join('');
-    const clean = rawText.replace(/```json|```/g, '').trim();
+    const raw = data.content.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
     return res.status(200).json(JSON.parse(clean));
   } catch (err) {
     console.error(err);
