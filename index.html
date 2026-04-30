@@ -1,22 +1,19 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="description" content="아이 눈높이에 맞춘 나이별 국어사전" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
   <title>우리 아이 국어사전</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
   <!-- 홈 화면 -->
   <div class="screen" id="homeScreen">
     <div class="home-inner">
-
       <header class="home-header">
         <div class="logo">
           <div class="logo-icon">📖</div>
@@ -34,42 +31,30 @@
       <div class="search-hero">
         <div class="search-box" id="homeSearchBox">
           <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" class="search-input" placeholder="단어를 검색해봐요..." autocomplete="off" />
+          <input type="text" id="searchInput" class="search-input" placeholder="단어를 검색해봐요..." autocomplete="off"/>
           <button class="search-btn" onclick="searchWord()">찾기</button>
         </div>
       </div>
 
-      <div class="today-card" onclick="searchTodayWord()">
+      <div class="today-card" id="todayCard" onclick="searchTodayWord()">
         <div class="today-inner">
           <span class="today-badge">💡 오늘의 단어</span>
-          <span class="today-word" id="todayWord">감사</span>
-          <span class="today-hint">탭해서 알아보기 →</span>
+          <span class="today-word" id="todayWord">불러오는 중...</span>
+          <span class="today-hint" id="todayHint">탭해서 알아보기 →</span>
         </div>
-        <div class="today-emoji" id="todayEmoji">🙏</div>
-      </div>
-
-      <div class="quick-section">
-        <p class="quick-label">자주 찾는 단어</p>
-        <div class="quick-chips">
-          <button class="qchip" onclick="quickSearch('사랑')">사랑</button>
-          <button class="qchip" onclick="quickSearch('우정')">우정</button>
-          <button class="qchip" onclick="quickSearch('감사')">감사</button>
-          <button class="qchip" onclick="quickSearch('용기')">용기</button>
-          <button class="qchip" onclick="quickSearch('질투')">질투</button>
-          <button class="qchip" onclick="quickSearch('민주주의')">민주주의</button>
-          <button class="qchip" onclick="quickSearch('자유')">자유</button>
-          <button class="qchip" onclick="quickSearch('평화')">평화</button>
-        </div>
+        <div class="today-emoji" id="todayEmoji">✨</div>
       </div>
 
       <div class="history-section" id="historySection" style="display:none">
-        <p class="quick-label">최근 검색</p>
+        <p class="section-label">최근 검색</p>
         <div class="quick-chips" id="historyChips"></div>
       </div>
 
+      <div class="quick-section">
+        <p class="section-label">자주 찾는 단어</p>
+        <div class="quick-chips" id="quickChips"></div>
+      </div>
     </div>
-
-    <!-- 하단 배너 -->
     <div class="home-bottom-banner">
       <span>📖 매일 새 단어로 아이와 대화를 시작해보세요</span>
     </div>
@@ -77,21 +62,11 @@
 
   <!-- 결과 화면 -->
   <div class="screen hidden" id="resultScreen">
-
-    <!-- 결과 헤더 -->
     <div class="result-header">
-      <button class="back-btn" onclick="goHome()">
-        <span class="back-arrow">←</span>
-      </button>
+      <button class="back-btn" onclick="goHome()">←</button>
       <div class="result-header-word" id="resultHeaderWord"></div>
-      <div class="result-header-actions">
-        <button class="icon-btn" id="retryBtn" title="다시 생성">🔄</button>
-        <button class="icon-btn" id="ttsBtn" title="읽어주기">🔊</button>
-        <button class="icon-btn" id="shareBtn" title="공유">🔗</button>
-      </div>
     </div>
 
-    <!-- 로딩 -->
     <div class="result-loading" id="resultLoading">
       <div class="loading-emoji" id="loadingEmoji">🔍</div>
       <p class="loading-msg" id="loadingMsg">찾아볼게요!</p>
@@ -99,10 +74,7 @@
       <div class="loading-dots"><span></span><span></span><span></span></div>
     </div>
 
-    <!-- 결과 콘텐츠 -->
     <div class="result-content hidden" id="resultContent">
-
-      <!-- 단어 정보 -->
       <div class="word-hero">
         <div class="word-emoji-big" id="wordEmoji">💝</div>
         <div class="word-hero-info">
@@ -111,48 +83,76 @@
         </div>
       </div>
 
-      <!-- 탭 -->
       <div class="tab-bar">
         <button class="tab active" data-tab="explain" onclick="switchTab('explain')">설명</button>
         <button class="tab" data-tab="story" onclick="switchTab('story')">동화</button>
       </div>
 
-      <!-- 설명 탭 (설명 + 단어 + 태그 통합) -->
+      <!-- 설명 탭 -->
       <div class="tab-content active" id="tab-explain">
         <div class="explain-def" id="explainDef"></div>
 
-        <div class="example-label">예문</div>
-        <div class="explain-example" id="explainExample"></div>
+        <div class="example-wrap">
+          <div class="section-row-label">예문</div>
+          <div class="explain-example" id="explainExample"></div>
+        </div>
 
-        <div class="word-group">
-          <div class="word-group-label">비슷한 말</div>
-          <div class="word-group-chips" id="synonymChips"></div>
+        <div class="words-grid">
+          <div class="words-col">
+            <div class="section-row-label">비슷한 말</div>
+            <div class="word-chips" id="synonymChips"></div>
+          </div>
+          <div class="words-col">
+            <div class="section-row-label">반대 말</div>
+            <div class="word-chips" id="antonymChips"></div>
+          </div>
         </div>
-        <div class="word-group">
-          <div class="word-group-label">반대 말</div>
-          <div class="word-group-chips" id="antonymChips"></div>
+
+        <div class="related-section">
+          <div class="section-row-label">연관 단어</div>
+          <div class="related-chips" id="relatedChips"></div>
         </div>
-        <div class="word-group">
-          <div class="word-group-label">연관 단어</div>
-          <div class="word-group-chips" id="relatedChips"></div>
+
+        <div class="tags-section">
+          <div class="section-row-label">태그</div>
+          <div class="tag-chips" id="tagChips"></div>
         </div>
-        <div class="word-group">
-          <div class="word-group-label">태그</div>
-          <div class="explain-tags" id="explainTags"></div>
+
+        <div class="action-row">
+          <button class="btn-base" id="ttsBtn">🔊 읽기</button>
+          <button class="btn-base" id="shareBtn">🔗 공유</button>
+        </div>
+        <div class="action-row" style="margin-top:8px">
+          <button class="btn-primary" id="retryBtn">🔄 설명 다시 받기</button>
         </div>
       </div>
 
       <!-- 동화 탭 -->
       <div class="tab-content hidden" id="tab-story">
         <div class="story-area" id="storyArea">
-          <button class="story-make-btn" id="storyMakeBtn" onclick="makeStory()">
-            ✨ 동화 만들기
-          </button>
+          <div class="story-intro">
+            <span class="story-intro-emoji">✨</span>
+            <div class="story-intro-title">동화 만들기</div>
+            <div class="story-intro-sub">검색한 단어가 주인공인<br>짧은 동화를 만들어드려요</div>
+            <button class="btn-amber full" onclick="makeStory()">동화 시작하기</button>
+          </div>
         </div>
       </div>
-
     </div>
+  </div>
 
+  <!-- 태그 관련 단어 팝업 -->
+  <div class="sheet-overlay hidden" id="tagSheetOverlay" onclick="hideTagSheet()">
+    <div class="age-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <div class="sheet-title" id="tagSheetTitle">#감정 관련 단어</div>
+        <button class="sheet-close" onclick="hideTagSheet()">✕</button>
+      </div>
+      <div class="tag-related-loading" id="tagRelatedLoading">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+      </div>
+      <div class="tag-related-chips" id="tagRelatedChips"></div>
+    </div>
   </div>
 
   <!-- 나이 선택 시트 -->
@@ -162,40 +162,28 @@
       <div class="age-options">
         <button class="age-option" data-age="3" onclick="setAge(3)">
           <span class="age-opt-emoji">🐣</span>
-          <div>
-            <div class="age-opt-name">3~4살</div>
-            <div class="age-opt-desc">말을 막 시작한 시기</div>
-          </div>
+          <div><div class="age-opt-name">3~4살</div><div class="age-opt-desc">말을 막 시작한 시기</div></div>
         </button>
         <button class="age-option" data-age="5" onclick="setAge(5)">
           <span class="age-opt-emoji">🐥</span>
-          <div>
-            <div class="age-opt-name">5~6살</div>
-            <div class="age-opt-desc">왜왜왜 시기</div>
-          </div>
+          <div><div class="age-opt-name">5~6살</div><div class="age-opt-desc">왜왜왜 시기</div></div>
         </button>
         <button class="age-option" data-age="7" onclick="setAge(7)">
           <span class="age-opt-emoji">🐓</span>
-          <div>
-            <div class="age-opt-name">7~8살</div>
-            <div class="age-opt-desc">학교 들어갈 때</div>
-          </div>
+          <div><div class="age-opt-name">7~8살</div><div class="age-opt-desc">학교 들어갈 때</div></div>
         </button>
         <button class="age-option" data-age="10" onclick="setAge(10)">
           <span class="age-opt-emoji">🦅</span>
-          <div>
-            <div class="age-opt-name">9~10살</div>
-            <div class="age-opt-desc">초등학교 시기</div>
-          </div>
+          <div><div class="age-opt-name">9~10살</div><div class="age-opt-desc">초등학교 시기</div></div>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- 만족도 조사 팝업 -->
+  <!-- 만족도 조사 -->
   <div class="sheet-overlay hidden" id="surveyOverlay">
     <div class="age-sheet" onclick="event.stopPropagation()">
-      <button class="survey-close" onclick="closeSurvey(true)">✕</button>
+      <button class="sheet-close" onclick="closeSurvey(true)">✕</button>
       <div class="survey-emoji-big">💚</div>
       <div class="survey-title">앱이 마음에 드셨나요?</div>
       <div class="survey-sub">솔직한 의견이 큰 도움이 돼요</div>
@@ -207,7 +195,7 @@
         <span class="star" onclick="setStar(5)">★</span>
       </div>
       <textarea id="surveyComment" class="survey-textarea" placeholder="한 줄 의견 (선택)"></textarea>
-      <button class="survey-submit" id="surveySubmit" onclick="submitSurvey()" disabled>보내기</button>
+      <button class="btn-primary full" id="surveySubmit" onclick="submitSurvey()" disabled>보내기</button>
       <button class="survey-skip" onclick="closeSurvey(true)">다음에 할게요</button>
     </div>
   </div>
