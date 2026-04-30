@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
 {
   "word": "추천 단어 1개",
   "emoji": "단어를 나타내는 이모지 1개",
-  "reason": "이 단어를 추천한 이유 (한 문장, 부모에게 보여주는 짧은 힌트)"
+  "reason": "이 단어를 추천한 이유 한 문장 (부모에게 보여주는 짧은 힌트)"
 }`;
 
   try {
@@ -44,17 +44,14 @@ module.exports = async function handler(req, res) {
         messages: [{ role: 'user', content: prompt }]
       })
     });
-
     if (!response.ok) {
       const errBody = await response.text();
-      throw new Error(`Anthropic API 오류: ${response.status} / ${errBody}`);
+      throw new Error(`API 오류: ${response.status} / ${errBody}`);
     }
-
     const data = await response.json();
-    const rawText = data.content.map(i => i.text || '').join('');
-    const clean = rawText.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    return res.status(200).json(parsed);
+    const raw = data.content.map(i => i.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    return res.status(200).json(JSON.parse(clean));
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: err.message });
