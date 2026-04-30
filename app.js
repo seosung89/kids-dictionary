@@ -1,9 +1,4 @@
-const DAILY_WORDS = [
-  '사랑','감사','우정','용기','정직','배려','존중','희망','행복','겸손',
-  '인내','성실','책임','자유','평화','지혜','친절','신뢰','공감','열정',
-  '도전','꿈','노력','기쁨','슬픔','분노','질투','용서','나눔','봉사',
-  '민주주의','경제','문화','역사','자연','환경','과학','예술','음악','스포츠'
-];
+// 오늘의 단어는 AI가 생성 (하루 한 번만 API 호출)
 
 const LOADING_MSGS = [
   { emoji: '🔍', msg: '찾아볼게요!', sub: '열심히 설명을 준비하고 있어요...' },
@@ -58,17 +53,58 @@ function switchTab(tab) {
   });
 }
 
-// ── 오늘의 단어 ──────────────────────────
-function renderTodayWord() {
+// ── 오늘의 단어 (AI 생성, 하루 한 번만) ───
+async function renderTodayWord() {
   const today = new Date();
-  const idx = (today.getFullYear() * 365 + today.getMonth() * 30 + today.getDate()) % DAILY_WORDS.length;
-  const word = DAILY_WORDS[idx];
-  document.getElementById('todayWord').textContent = word;
+  const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+  const ageKey = `kidsDict_daily_${dateKey}_${currentAge}`;
+
+  // 오늘 이미 생성한 단어가 있으면 바로 사용
+  const cached = localStorage.getItem(ageKey);
+  if (cached) {
+    try {
+      const data = JSON.parse(cached);
+      applyTodayWord(data);
+      return;
+    } catch(e) {}
+  }
+
+  // 없으면 AI에게 요청
+  document.getElementById('todayWord').textContent = '불러오는 중...';
+  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+
+  try {
+    const res = await fetch('/api/daily', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ageLabel, date: dateKey })
+    });
+    if (!res.ok) throw new Error('오늘의 단어 생성 실패');
+    const data = await res.json();
+
+    // 오늘 하루 저장
+    localStorage.setItem(ageKey, JSON.stringify(data));
+    applyTodayWord(data);
+  } catch(err) {
+    // 실패하면 기본값
+    document.getElementById('todayWord').textContent = '감사';
+    document.getElementById('todayEmoji').textContent = '🙏';
+    console.error(err);
+  }
+}
+
+function applyTodayWord(data) {
+  document.getElementById('todayWord').textContent = data.word;
+  document.getElementById('todayEmoji').textContent = data.emoji || '💡';
+
+  // 힌트 문구 업데이트
+  const hint = document.querySelector('.today-hint');
+  if (hint && data.reason) hint.textContent = data.reason;
 }
 
 function searchTodayWord() {
   const word = document.getElementById('todayWord').textContent;
-  if (word) quickSearch(word);
+  if (word && word !== '불러오는 중...') quickSearch(word);
 }
 
 // ── 나이 설정 ────────────────────────────
@@ -86,6 +122,7 @@ function setAge(age) {
   updateAgeBadge(age);
   setActiveAgeOption(age);
   hideAgeSheet();
+  renderTodayWord();
   if (currentWord) searchWord();
 }
 
@@ -255,15 +292,16 @@ function renderResult(word, p) {
   // 설명 탭
   document.getElementById('explainDef').innerHTML = renderLinkedDef(p.definition);
   document.getElementById('explainExample').textContent = `"${p.example}"`;
-  document.getElementById('explainTags').innerHTML = (p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('');
 
-  // 단어 탭
+  // 비슷한말 / 반대말 / 연관단어 / 태그
   document.getElementById('synonymChips').innerHTML = (p.synonyms || [])
     .map(w => `<button class="wchip" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
   document.getElementById('antonymChips').innerHTML = (p.antonyms || [])
     .map(w => `<button class="wchip" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
   document.getElementById('relatedChips').innerHTML = (p.related || [])
     .map(w => `<button class="wchip related" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
+  document.getElementById('explainTags').innerHTML = (p.tags || [])
+    .map(t => `<span class="tag">${esc(t)}</span>`).join('');
 
   // 동화 탭 초기화
   document.getElementById('storyArea').innerHTML = `
