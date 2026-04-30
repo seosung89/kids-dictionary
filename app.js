@@ -1,19 +1,12 @@
-// ────────────────────────────────────────────
-//  우리 아이 국어사전 — app.js
-//  API 호출은 /api/search.js (Serverless Function)를 통해 처리해요.
-// ────────────────────────────────────────────
-
 let currentAge = parseInt(localStorage.getItem('kidsDict_age') || '5');
 let searchHistory = JSON.parse(localStorage.getItem('kidsDict_history') || '[]');
 
 function init() {
   setActiveAgeTab(currentAge);
   renderHistory();
-
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') searchWord();
   });
-
   document.querySelectorAll('.age-tab').forEach(tab => {
     tab.addEventListener('click', () => setAge(parseInt(tab.dataset.age)));
   });
@@ -45,11 +38,7 @@ function renderHistory() {
   const section = document.getElementById('historySection');
   const row = document.getElementById('historyRow');
   row.innerHTML = '';
-
-  if (searchHistory.length === 0) {
-    section.style.display = 'none';
-    return;
-  }
+  if (searchHistory.length === 0) { section.style.display = 'none'; return; }
   section.style.display = 'block';
   [...searchHistory].reverse().slice(0, 8).forEach(word => {
     const btn = document.createElement('button');
@@ -67,23 +56,23 @@ function quickSearch(word) {
 }
 
 function speak(text, btnEl) {
-  if (!('speechSynthesis' in window)) {
-    alert('이 기기에서는 음성 기능을 지원하지 않아요.');
-    return;
-  }
+  if (!('speechSynthesis' in window)) { alert('이 기기에서는 음성 기능을 지원하지 않아요.'); return; }
   window.speechSynthesis.cancel();
-  if (btnEl.classList.contains('playing')) {
-    btnEl.classList.remove('playing');
-    return;
-  }
+  if (btnEl.classList.contains('playing')) { btnEl.classList.remove('playing'); return; }
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'ko-KR';
-  utter.rate = 0.88;
-  utter.pitch = 1.05;
+  utter.lang = 'ko-KR'; utter.rate = 0.88; utter.pitch = 1.05;
   utter.onstart = () => btnEl.classList.add('playing');
   utter.onend = () => btnEl.classList.remove('playing');
   utter.onerror = () => btnEl.classList.remove('playing');
   window.speechSynthesis.speak(utter);
+}
+
+// 설명 안의 [단어] 를 클릭 가능한 링크로 변환
+function renderLinkedDef(definition) {
+  return definition.replace(/\[([^\]]+)\]/g, (_, word) => {
+    const safe = word.replace(/'/g, "\\'");
+    return `<span class="word-link" onclick="quickSearch('${safe}')">${word}</span>`;
+  });
 }
 
 async function searchWord() {
@@ -94,13 +83,10 @@ async function searchWord() {
   resultSection.innerHTML = `
     <div class="loading">
       <p>잠깐만요, 찾아볼게요...</p>
-      <div class="loading-dots">
-        <span></span><span></span><span></span>
-      </div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
     </div>`;
 
   addToHistory(word);
-
   const ageLabel = { 3: '3~4살', 5: '5~6살', 7: '7~8살', 10: '9~10살' }[currentAge];
 
   try {
@@ -109,36 +95,24 @@ async function searchWord() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ word, ageLabel })
     });
-
     if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
     const p = await res.json();
-
     renderResult(word, p);
   } catch (err) {
-    resultSection.innerHTML = `
-      <div class="loading">
-        <p>앗, 오류가 났어요 😥<br>잠시 후 다시 시도해봐요.</p>
-      </div>`;
+    resultSection.innerHTML = `<div class="loading"><p>앗, 오류가 났어요 😥<br>잠시 후 다시 시도해봐요.</p></div>`;
     console.error(err);
   }
 }
 
 function renderResult(word, p) {
   const resultSection = document.getElementById('resultSection');
-  const speakText = `${word}. ${p.definition} 예를 들면, ${p.example}`;
+  const speakText = `${word}. ${p.definition.replace(/\[[^\]]+\]/g, m => m.slice(1,-1))} 예를 들면, ${p.example}`;
 
-  const synonymChips = (p.synonyms || [])
-    .map(w => `<button class="chip-pair" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`)
-    .join('');
-  const antonymChips = (p.antonyms || [])
-    .map(w => `<button class="chip-pair" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`)
-    .join('');
-  const relatedChips = (p.related || [])
-    .map(w => `<button class="chip-related" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`)
-    .join('');
-  const tagChips = (p.tags || [])
-    .map(t => `<span class="tag">${esc(t)}</span>`)
-    .join('');
+  const linkedDef = renderLinkedDef(p.definition);
+  const synonymChips = (p.synonyms || []).map(w => `<button class="chip-pair" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
+  const antonymChips = (p.antonyms || []).map(w => `<button class="chip-pair" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
+  const relatedChips = (p.related || []).map(w => `<button class="chip-related" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
+  const tagChips = (p.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('');
 
   resultSection.innerHTML = `
     <div class="result-card">
@@ -150,10 +124,9 @@ function renderResult(word, p) {
         </div>
         <button class="tts-btn" id="ttsBtn" title="읽어주기">🔊</button>
       </div>
-
-      <p class="word-def">${esc(p.definition)}</p>
+      <p class="word-def">${linkedDef}</p>
       <div class="word-example">"${esc(p.example)}"</div>
-
+      <div class="divider"></div>
       <div class="pairs-grid">
         <div class="pair-box">
           <div class="pair-label">비슷한 말</div>
@@ -164,12 +137,10 @@ function renderResult(word, p) {
           <div class="pair-chips">${antonymChips}</div>
         </div>
       </div>
-
       <div class="related-row">
         <div class="related-label">연관 단어</div>
         <div class="related-chips">${relatedChips}</div>
       </div>
-
       <div class="tags-row">${tagChips}</div>
     </div>`;
 
@@ -182,11 +153,7 @@ function renderResult(word, p) {
 
 function esc(str) {
   if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 init();
