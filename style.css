@@ -400,7 +400,8 @@ html, body {
 }
 .story-text {
   font-family: var(--font-display); font-size: 17px;
-  line-height: 2.2; color: var(--text);
+  line-height: 2.4; color: var(--text);
+  word-break: keep-all;
 }
 .story-actions { display: flex; gap: 8px; margin-bottom: 8px; }
 
