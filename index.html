@@ -75,12 +75,61 @@
         <p class="home-guide-sub">위에서 단어를 검색하거나<br>오늘의 단어를 눌러보세요</p>
       </div>
 
+      <!-- 설치 안내 카드 — 처음 방문 시만 표시 -->
+      <div class="install-card" id="installCard">
+        <button class="install-close" onclick="closeInstallCard()">✕</button>
+        <div class="install-title">앱처럼 사용하기</div>
+        <div class="install-sub">홈화면에 추가하면 주소창 없이 앱처럼 열려요</div>
+        <div class="install-steps">
+          <div class="install-step">
+            <div class="install-step-icon">🍎</div>
+            <div>
+              <div class="install-step-os">아이폰 (사파리)</div>
+              <div class="install-step-desc">하단 <b>공유 □↑</b> → <b>홈 화면에 추가</b></div>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-icon">🤖</div>
+            <div>
+              <div class="install-step-os">안드로이드 (크롬)</div>
+              <div class="install-step-desc">우측 상단 <b>메뉴 ⋮</b> → <b>앱 설치</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 설치 안내 카드 — 첫 방문 시만 표시 -->
+      <div class="install-card" id="installCard">
+        <button class="install-close" onclick="closeInstallCard()">✕</button>
+        <div class="install-title">앱처럼 사용하기</div>
+        <div class="install-sub">홈화면에 추가하면 주소창 없이 앱처럼 열려요</div>
+        <div class="install-steps">
+          <div class="install-step">
+            <div class="install-step-icon">🍎</div>
+            <div>
+              <div class="install-step-os">아이폰 (사파리)</div>
+              <div class="install-step-desc">하단 <b>공유 □↑</b> → <b>홈 화면에 추가</b></div>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-icon">🤖</div>
+            <div>
+              <div class="install-step-os">안드로이드 (크롬)</div>
+              <div class="install-step-desc">우측 상단 <b>메뉴 ⋮</b> → <b>앱 설치</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- 하단 광고 배너 공간 (카카오 광고 등 추후 연동) -->
+    <!-- 하단 광고 배너 + 문의 -->
     <div class="home-bottom-banner">
-      <div class="banner-ad-placeholder" id="bannerAd">
-        광고 영역
+      <div class="banner-top" id="bannerAd">광고 영역</div>
+      <div class="banner-bottom">
+        문의 <a href="mailto:srseo1008@gmail.com" class="banner-email">srseo1008@gmail.com</a>
+      </div>
+    </div>
       </div>
     </div>
   </div>
