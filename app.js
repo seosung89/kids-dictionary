@@ -20,7 +20,6 @@ let searchCount = parseInt(localStorage.getItem('kidsDict_searchCount') || '0');
 let surveyDone = localStorage.getItem('kidsDict_surveyDone') === 'true';
 let selectedStar = 0;
 let currentWord = '';
-let currentResult = null;
 let storyGenerated = false;
 
 // ── 초기화 ──────────────────────────────
@@ -112,8 +111,8 @@ async function renderTodayWord() {
 function applyTodayWord(data) {
   document.getElementById('todayWord').textContent  = data.word  || '감사';
   document.getElementById('todayEmoji').textContent = data.emoji || '💡';
-  const hint = document.getElementById('todayHint');
-  if (hint) hint.textContent = data.reason || '아이와 함께 알아보세요';
+  const reason = document.getElementById('todayReason');
+  if (reason) reason.textContent = data.reason || '아이와 함께 알아보세요';
 }
 
 function searchTodayWord() {
@@ -132,7 +131,11 @@ function setAge(age) {
   setActiveAgeOption(age);
   hideAgeSheet();
   renderTodayWord();
-  if (currentWord) searchWord();
+  // 결과 화면에 있을 때는 재검색 안 하고 토스트만
+  const onResult = !document.getElementById('resultScreen').classList.contains('hidden');
+  if (onResult) {
+    showToast(`나이가 ${({ 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[age])}(으)로 변경됐어요`);
+  }
 }
 
 function updateAgeBadge(age) {
@@ -170,7 +173,7 @@ function renderHistory() {
   section.style.display = 'block';
   if (guide) guide.style.display = 'none';
 
-  [...searchHistory].reverse().slice(0, 8).forEach(word => {
+  [...searchHistory].reverse().slice(0, 5).forEach(word => {
     const btn = document.createElement('button');
     btn.className = 'qchip';
     btn.textContent = word;
@@ -318,20 +321,24 @@ async function searchWord() {
     });
     if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
     const p = await res.json();
-    currentResult = p;
     renderResult(word, p);
     checkSurvey('search');
   } catch (err) {
-    // 검색 오류 시 다시 시도 버튼 표시
     document.getElementById('loadingEmoji').textContent = '😥';
     document.getElementById('loadingMsg').textContent   = '앗, 오류가 났어요';
     document.getElementById('loadingSub').textContent   = '잠시 후 다시 시도해봐요';
-    // 로딩 영역에 다시 시도 버튼 추가
+    // 기존 버튼 제거 후 새로 추가 (중복 방지)
+    const existing = document.getElementById('retrySearchBtn');
+    if (existing) existing.remove();
     const dots = document.querySelector('.loading-dots');
     if (dots) {
-      dots.insertAdjacentHTML('afterend',
-        `<button class="btn-primary" style="margin-top:1.5rem;max-width:200px" onclick="searchWord()">다시 시도하기</button>`
-      );
+      const btn = document.createElement('button');
+      btn.id = 'retrySearchBtn';
+      btn.className = 'btn-primary';
+      btn.style.cssText = 'margin-top:1.5rem;max-width:200px';
+      btn.textContent = '다시 시도하기';
+      btn.onclick = () => searchWord();
+      dots.insertAdjacentElement('afterend', btn);
     }
     console.error(err);
   }
@@ -384,10 +391,12 @@ function renderResult(word, p) {
 }
 
 // ── 동화 포맷팅 ─────────────────────────
+// 문장 부호 기준 줄바꿈 (구형 브라우저 호환)
 function formatStory(text) {
   if (!text) return '';
   return text
-    .split(/(?<=[.!?~])\s+/)
+    .replace(/([.!?~])\s+/g, '$1\n')
+    .split('\n')
     .map(s => esc(s.trim()))
     .filter(Boolean)
     .join('<br><br>');
