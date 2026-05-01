@@ -1,7 +1,7 @@
 {
-  "name": "우리 아이 국어사전",
-  "short_name": "국어사전",
-  "description": "아이 나이에 맞게 쉽게 설명해주는 국어사전",
+  "name": "새싹사전",
+  "short_name": "새싹사전",
+  "description": "아이 눈높이에 맞게 쉽게 설명해주는 사전",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
