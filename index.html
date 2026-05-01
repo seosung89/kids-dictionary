@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <title>우리 아이 국어사전</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -37,15 +37,18 @@
         </div>
       </div>
 
-      <!-- 오늘의 단어 — 버튼 명시 -->
+      <!-- 오늘의 단어 -->
       <div class="today-card" id="todayCard">
-        <div class="today-inner">
-          <span class="today-badge">💡 오늘의 단어</span>
-          <span class="today-word" id="todayWord">불러오는 중...</span>
-          <span class="today-hint" id="todayHint">아이와 함께 알아보세요</span>
+        <div class="today-body">
+          <div class="today-tag">💡 오늘의 단어</div>
+          <div class="today-row">
+            <div class="today-word" id="todayWord">불러오는 중...</div>
+            <div class="today-emoji" id="todayEmoji">✨</div>
+          </div>
+          <div class="today-hint" id="todayHint">아이와 함께 알아보세요</div>
         </div>
-        <div class="today-right">
-          <div class="today-emoji" id="todayEmoji">✨</div>
+        <div class="today-footer">
+          <span class="today-footer-text">탭해서 알아보세요</span>
           <button class="today-btn" id="todayBtn" onclick="searchTodayWord()">알아보기 →</button>
         </div>
       </div>
