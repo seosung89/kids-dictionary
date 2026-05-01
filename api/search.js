@@ -5,11 +5,15 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { word, ageLabel } = req.body;
+  const { word, ageLabel, meaning } = req.body;
   if (!word || !ageLabel) return res.status(400).json({ error: '단어와 나이를 입력해주세요.' });
 
-  const prompt = `당신은 어린이 전용 국어사전입니다.
-"${word}"라는 단어를 ${ageLabel} 아이에게 설명해주세요.
+  const meaningClause = meaning
+    ? `"${word}" 중에서 "${meaning}" 의미로 설명해주세요.`
+    : '';
+
+  const prompt = `당신은 어린이 전용 사전입니다.
+"${word}"라는 단어를 ${ageLabel} 아이에게 설명해주세요. ${meaningClause}
 
 반드시 아래 JSON 형식으로만 응답하세요. 다른 말은 절대 하지 마세요:
 {
