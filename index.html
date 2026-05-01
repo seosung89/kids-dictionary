@@ -2,8 +2,9 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
   <title>우리 아이 국어사전</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -56,16 +57,17 @@
         <div class="quick-chips" id="historyChips"></div>
       </div>
 
-      <!-- 검색 유도 문구 — 최근 검색 없을 때 보임 -->
+      <!-- 검색 유도 — 최근 검색 없을 때만 표시 -->
       <div class="home-guide" id="homeGuide">
-        <p class="home-guide-text">궁금한 단어를 검색해보세요</p>
-        <p class="home-guide-sub">아이가 모르는 단어를<br>눈높이에 맞게 설명해드려요</p>
+        <p class="home-guide-text">단어를 검색해보세요</p>
+        <p class="home-guide-sub">아이가 모르는 단어를 물어볼 때<br>바로 찾아보세요</p>
       </div>
 
     </div>
 
+    <!-- 하단 배너 — 오늘의 단어 활용 힌트 -->
     <div class="home-bottom-banner">
-      매일 새 단어로 아이와 대화를 시작해보세요
+      오늘의 단어로 아이와 대화를 시작해보세요
     </div>
   </div>
 
@@ -131,7 +133,7 @@
           <button class="btn-base" id="ttsBtn">🔊 읽기</button>
           <button class="btn-base" id="shareBtn">🔗 공유</button>
         </div>
-        <div class="action-row" style="margin-top:8px; padding-bottom: 1.5rem;">
+        <div class="action-row" style="margin-top:8px; padding-bottom:2rem;">
           <button class="btn-primary" id="retryBtn">🔄 설명 다시 받기</button>
         </div>
       </div>
