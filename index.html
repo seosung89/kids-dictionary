@@ -108,11 +108,11 @@
 
     </div>
 
-    <!-- 하단 광고 배너 + 문의 -->
+    <!-- 하단 배너 -->
     <div class="home-bottom-banner">
-      <div class="banner-top" id="bannerAd">광고 영역</div>
-      <div class="banner-bottom">
-        문의 <a href="mailto:srseo1008@gmail.com" class="banner-email">srseo1008@gmail.com</a>
+      <div class="banner-ad" id="bannerAd"></div>
+      <div class="banner-contact">
+        <a href="mailto:srseo1008@gmail.com" class="banner-email">문의하기</a>
       </div>
     </div>
       </div>
@@ -197,6 +197,17 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- 동음이의어 선택 시트 -->
+  <div class="sheet-overlay hidden" id="homonymSheetOverlay" onclick="hideHomonymSheet()">
+    <div class="age-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <p class="homonym-label">동음이의어</p>
+      <p class="homonym-sheet-title" id="homonymSheetWord">"밤"의 뜻을 골라주세요</p>
+      <p class="homonym-sheet-sub" id="homonymSheetSub">어떤 밤을 알고 싶으세요?</p>
+      <div class="homonym-list" id="homonymList"></div>
     </div>
   </div>
 
