@@ -3,36 +3,33 @@
   <rect width="512" height="512" rx="112" fill="#FAF7F2"/>
 
   <!-- 책 몸통 -->
-  <rect x="120" y="136" width="272" height="240" rx="18" fill="#4A7C5F"/>
+  <rect x="100" y="150" width="312" height="230" rx="20" fill="#4A7C5F"/>
 
   <!-- 책 페이지 왼쪽 -->
-  <rect x="132" y="148" width="118" height="216" rx="6" fill="#F2EDE4"/>
+  <rect x="114" y="164" width="132" height="202" rx="8" fill="#F2EDE4"/>
 
   <!-- 책 페이지 오른쪽 -->
-  <rect x="262" y="148" width="118" height="216" rx="6" fill="#FFFFFF"/>
+  <rect x="266" y="164" width="132" height="202" rx="8" fill="#FFFFFF"/>
 
   <!-- 가운데 세로선 -->
-  <rect x="248" y="148" width="16" height="216" fill="#4A7C5F"/>
+  <rect x="246" y="164" width="20" height="202" fill="#4A7C5F"/>
 
-  <!-- 왼쪽 페이지 줄 -->
-  <rect x="148" y="178" width="86" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="148" y="200" width="86" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="148" y="222" width="70" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="148" y="244" width="86" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="148" y="266" width="60" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
+  <!-- 왼쪽 줄 -->
+  <rect x="130" y="192" width="100" height="7" rx="3.5" fill="#4A7C5F" opacity="0.25"/>
+  <rect x="130" y="212" width="100" height="7" rx="3.5" fill="#4A7C5F" opacity="0.25"/>
+  <rect x="130" y="232" width="80" height="7" rx="3.5" fill="#4A7C5F" opacity="0.25"/>
 
-  <!-- 오른쪽 페이지 줄 -->
-  <rect x="278" y="178" width="86" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="278" y="200" width="86" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="278" y="222" width="70" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="278" y="244" width="86" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
-  <rect x="278" y="266" width="60" height="8" rx="4" fill="#4A7C5F" opacity="0.3"/>
+  <!-- 오른쪽 새싹 일러스트 -->
+  <!-- 줄기 -->
+  <rect x="326" y="285" width="8" height="60" rx="4" fill="#4A7C5F"/>
+  <!-- 큰 잎 -->
+  <ellipse cx="316" cy="268" rx="26" ry="18" fill="#6A9E7F" transform="rotate(-30 316 268)"/>
+  <!-- 작은 잎 -->
+  <ellipse cx="348" cy="258" rx="18" ry="13" fill="#4A7C5F" transform="rotate(25 348 258)"/>
+  <!-- 새싹 끝 -->
+  <ellipse cx="330" cy="238" rx="10" ry="16" fill="#8BC4A0" transform="rotate(-5 330 238)"/>
 
-  <!-- 앰버 포인트 — 하단 바 -->
-  <rect x="120" y="348" width="272" height="28" rx="0" fill="#C17F3A" opacity="0.9"/>
-  <rect x="120" y="356" width="272" height="20" rx="0" fill="#C17F3A"/>
-
-  <!-- 책 하단 마감 -->
-  <rect x="120" y="356" width="272" height="20" rx="0" fill="#C17F3A"/>
-  <path d="M120 356 L392 356 L392 376 Q392 376 256 376 Q120 376 120 376 Z" fill="#C17F3A"/>
+  <!-- 하단 앰버 바 -->
+  <rect x="100" y="352" width="312" height="28" rx="0" fill="#C17F3A"/>
+  <path d="M100 352 L412 352 L412 380 Q412 380 256 380 Q100 380 100 380 Z" fill="#C17F3A"/>
 </svg>
