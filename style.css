@@ -46,19 +46,30 @@ body {
 /* ── 화면 전환 ─── */
 .screen {
   position: fixed;
-  top: 0; bottom: 0;
-  left: 50%; transform: translateX(-50%);
-  width: 100vw; max-width: 480px;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: var(--bg);
   display: flex; flex-direction: column;
   transition: opacity 0.32s;
-  overflow: hidden;
 }
 .screen.hidden {
   opacity: 0; pointer-events: none;
   visibility: hidden;
 }
 .hidden { display: none !important; }
+
+/* 태블릿/데스크탑 — 중앙 정렬 컨테이너 */
+@media (min-width: 480px) {
+  .screen {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 480px;
+    box-shadow: 0 0 40px rgba(44,36,22,0.15);
+  }
+  .screen.hidden {
+    transform: translateX(-50%);
+    opacity: 0; pointer-events: none; visibility: hidden;
+  }
+}
 
 /* ── 홈 ─── */
 .home-inner {
@@ -517,7 +528,6 @@ body {
 /* 태블릿/데스크탑 배경 */
 @media (min-width: 480px) {
   body { background: #E8E2D8; }
-  .screen { box-shadow: 0 0 40px rgba(44,36,22,0.15); }
 }
 
 @media (max-width: 400px) {
