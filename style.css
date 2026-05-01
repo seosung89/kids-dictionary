@@ -261,25 +261,64 @@ body {
 .home-bottom-banner {
   flex-shrink: 0;
   padding-bottom: var(--safe-bottom);
-  background: var(--surface); border-top: 1px solid var(--border);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
   display: flex; flex-direction: column;
-  overflow: hidden;
 }
-.banner-top {
+.banner-ad {
   height: var(--banner-h);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--text-hint); letter-spacing: 0.03em;
-  border-bottom: 1px solid var(--border);
 }
-.banner-bottom {
-  padding: 7px 16px;
+.banner-contact {
+  padding: 6px 16px 8px;
   display: flex; align-items: center; justify-content: center;
-  gap: 5px; font-size: 11px; color: var(--text-hint);
+  border-top: 1px solid var(--border);
 }
 .banner-email {
-  color: var(--sage); text-decoration: none; font-weight: 500; font-size: 11px;
+  color: var(--text-hint); text-decoration: none;
+  font-size: 11px; letter-spacing: 0.03em;
+  transition: color 0.15s;
 }
-.banner-email:hover { text-decoration: underline; }
+.banner-email:hover { color: var(--sage); }
+
+/* 동음이의어 시트 */
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: rgba(44,36,22,0.12); border-radius: 999px;
+  margin: 0 auto 1.25rem;
+}
+.homonym-label {
+  font-size: 11px; font-weight: 600; color: var(--text-hint);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 5px;
+}
+.homonym-sheet-title {
+  font-family: var(--font-serif); font-size: 20px; font-weight: 600;
+  color: var(--text); margin-bottom: 4px; letter-spacing: -0.02em;
+}
+.homonym-sheet-sub {
+  font-size: 13px; color: var(--text-muted); margin-bottom: 1.25rem;
+}
+.homonym-list { display: flex; flex-direction: column; gap: 10px; }
+.homonym-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 1rem 1.125rem;
+  background: var(--surface2); border: 1.5px solid transparent;
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+  font-family: var(--font-body); text-align: left; width: 100%;
+}
+.homonym-option:hover { border-color: var(--sage-border); background: var(--sage-dim); }
+.homonym-option:active { transform: scale(0.98); }
+.homonym-emoji {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+}
+.homonym-word {
+  font-family: var(--font-serif); font-size: 17px; font-weight: 600;
+  color: var(--text); line-height: 1; margin-bottom: 5px; letter-spacing: -0.02em;
+}
+.homonym-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 
 /* ── 결과 화면 ── */
 .result-header {
