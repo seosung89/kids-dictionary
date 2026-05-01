@@ -104,30 +104,40 @@ html, body {
 
 /* ── 오늘의 단어 ─── */
 .today-card {
-  background: var(--surface); border: 1px solid var(--amber-border);
-  border-radius: var(--radius); padding: 1.125rem 1.25rem;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  margin-bottom: 1.5rem; box-shadow: var(--shadow);
-  position: relative; overflow: hidden;
-}
-.today-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--amber), #E8C060);
+  background: #fff;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(193,127,58,0.2);
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
 }
 .today-card.loading { opacity: 0.55; pointer-events: none; }
-.today-inner { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 0; }
-.today-badge { font-size: 11px; font-weight: 600; color: var(--amber); letter-spacing: 0.03em; }
-.today-word { font-family: var(--font-display); font-size: 26px; color: var(--text); line-height: 1.1; }
-.today-hint { font-size: 11px; color: var(--text-hint); }
-.today-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
-.today-emoji { font-size: 30px; line-height: 1; }
-.today-btn {
-  background: var(--amber); color: #fff; border: none;
-  border-radius: var(--radius-pill); padding: 7px 14px;
-  font-family: var(--font-body); font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+.today-body { padding: 1.25rem 1.375rem 1rem; }
+.today-tag {
+  font-size: 10px; font-weight: 600; color: var(--amber);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;
 }
-.today-btn:hover { opacity: 0.88; }
+.today-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.today-word {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 34px; font-weight: 600; color: var(--text);
+  line-height: 1; letter-spacing: -0.02em;
+}
+.today-emoji { font-size: 36px; line-height: 1; flex-shrink: 0; }
+.today-hint { font-size: 12px; color: #8A8278; line-height: 1.65; }
+.today-footer {
+  background: var(--sage);
+  padding: 0.875rem 1.375rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.today-footer-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+.today-btn {
+  background: #fff; border: none; border-radius: var(--radius-pill);
+  color: var(--sage); font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  padding: 8px 18px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  letter-spacing: -0.01em;
+}
+.today-btn:hover { background: var(--surface2); }
 .today-btn:active { transform: scale(0.96); }
 .today-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
