@@ -28,10 +28,39 @@ function init() {
   updateAgeBadge(currentAge);
   renderHistory();
   renderTodayWord();
+  initInstallCard();
   window.addEventListener('popstate', () => goHome());
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') searchWord();
   });
+  document.getElementById('searchInput').addEventListener('input', e => {
+    const clear = document.getElementById('searchClear');
+    if (clear) clear.classList.toggle('hidden', !e.target.value);
+  });
+}
+
+// ── 설치 안내 카드 ────────────────────────
+function initInstallCard() {
+  const card = document.getElementById('installCard');
+  if (!card) return;
+
+  // 이미 PWA로 설치된 경우 숨기기
+  if (window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true) {
+    card.classList.add('hidden-card');
+    return;
+  }
+
+  // 이미 닫은 적 있으면 숨기기
+  if (localStorage.getItem('kidsDict_installClosed') === 'true') {
+    card.classList.add('hidden-card');
+  }
+}
+
+function closeInstallCard() {
+  const card = document.getElementById('installCard');
+  if (card) card.classList.add('hidden-card');
+  localStorage.setItem('kidsDict_installClosed', 'true');
 }
 
 // ── 화면 전환 ────────────────────────────
@@ -45,6 +74,8 @@ function goHome() {
   document.getElementById('resultScreen').classList.add('hidden');
   document.getElementById('homeScreen').classList.remove('hidden');
   document.getElementById('searchInput').value = '';
+  const clear = document.getElementById('searchClear');
+  if (clear) clear.classList.add('hidden');
 }
 
 // ── 탭 전환 ─────────────────────────────
@@ -198,7 +229,7 @@ function speak(text, btnEl) {
 // ── 공유 ────────────────────────────────
 function shareText(text) {
   if (navigator.share) {
-    navigator.share({ title: '우리 아이 국어사전', text }).catch(() => {});
+    navigator.share({ title: '새싹사전', text }).catch(() => {});
   } else {
     navigator.clipboard.writeText(text)
       .then(() => showToast('클립보드에 복사됐어요! 카카오톡에 붙여넣기 해보세요 😊'))
@@ -279,6 +310,14 @@ function renderLinkedDef(text) {
 }
 
 // ── 빠른 검색 ────────────────────────────
+function clearSearch() {
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  input.focus();
+  const clear = document.getElementById('searchClear');
+  if (clear) clear.classList.add('hidden');
+}
+
 function quickSearch(word) {
   document.getElementById('searchInput').value = word;
   searchWord();
@@ -382,7 +421,7 @@ function renderResult(word, p) {
 
   ttsBtn.onclick   = () => speak(speakText, ttsBtn);
   shareBtn.onclick = () => shareText(
-    `📖 우리 아이 국어사전\n\n"${word}"\n${cleanDef}\n\n예문: ${cleanEx}\n\n아이와 함께 단어를 배워요 🌿`
+    `🌱 새싹사전\n\n"${word}"\n${cleanDef}\n\n예문: ${cleanEx}\n\n아이와 함께 단어를 배워요 🌿`
   );
   retryBtn.onclick = () => searchWord();
 
@@ -443,7 +482,7 @@ async function makeStory() {
     const storyTtsBtn = document.getElementById('storyTtsBtn');
     storyTtsBtn.onclick = () => speak(data.story, storyTtsBtn);
     document.getElementById('storyShareBtn').onclick = () =>
-      shareText(`✨ ${currentWord} 동화\n\n${data.story}\n\n우리 아이 국어사전 🌿`);
+      shareText(`✨ ${currentWord} 동화\n\n${data.story}\n\n새싹사전 🌱`);
 
     checkSurvey('story');
   } catch {
