@@ -85,7 +85,7 @@ body {
   -webkit-overflow-scrolling: touch;
   padding-left: 1.25rem;
   padding-right: 1.25rem;
-  padding-bottom: calc(var(--banner-h) + var(--safe-bottom) + 1.5rem);
+  padding-bottom: calc(var(--banner-h) + 36px + var(--safe-bottom) + 1.5rem);
 }
 .home-inner::-webkit-scrollbar { display: none; }
 
@@ -212,20 +212,74 @@ body {
 }
 .home-guide-sub { font-size: 13px; color: var(--text-hint); line-height: 1.65; opacity: 0.7; }
 
+/* 설치 안내 카드 */
+.install-card {
+  background: var(--surface);
+  border: 1px solid rgba(74,124,95,0.2);
+  border-radius: var(--radius); padding: 1.125rem 1.25rem;
+  position: relative; overflow: hidden; margin-bottom: 1.5rem;
+}
+.install-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--sage), var(--sage-light));
+}
+.install-card.hidden-card { display: none; }
+.install-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--surface2); border: none;
+  color: var(--text-hint); font-size: 11px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.install-close:hover { background: var(--surface3); }
+.install-title {
+  font-family: var(--font-serif); font-size: 15px; font-weight: 600;
+  color: var(--text); margin-bottom: 4px; padding-right: 32px;
+  letter-spacing: -0.01em;
+}
+.install-sub {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.5;
+}
+.install-steps { display: flex; flex-direction: column; gap: 10px; }
+.install-step { display: flex; align-items: flex-start; gap: 10px; }
+.install-step-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--sage-dim); border: 1px solid var(--sage-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0; margin-top: 1px;
+}
+.install-step-os {
+  font-size: 10px; font-weight: 600; color: var(--sage);
+  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px;
+}
+.install-step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+.install-step-desc b { color: var(--text); font-weight: 600; }
+
 /* 광고 배너 */
+/* 광고 배너 + 문의 */
 .home-bottom-banner {
   flex-shrink: 0;
-  height: calc(var(--banner-h) + var(--safe-bottom));
   padding-bottom: var(--safe-bottom);
   background: var(--surface); border-top: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
+  display: flex; flex-direction: column;
   overflow: hidden;
 }
-.banner-ad-placeholder {
-  width: 100%; height: var(--banner-h);
+.banner-top {
+  height: var(--banner-h);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--text-hint); letter-spacing: 0.04em;
+  font-size: 11px; color: var(--text-hint); letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--border);
 }
+.banner-bottom {
+  padding: 7px 16px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px; font-size: 11px; color: var(--text-hint);
+}
+.banner-email {
+  color: var(--sage); text-decoration: none; font-weight: 500; font-size: 11px;
+}
+.banner-email:hover { text-decoration: underline; }
 
 /* ── 결과 화면 ── */
 .result-header {
