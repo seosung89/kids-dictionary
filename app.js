@@ -400,6 +400,17 @@ function renderResult(word, p) {
   document.getElementById('resultContent').classList.remove('hidden');
 }
 
+// ── 동화 포맷팅 ─────────────────────────
+// 문장 부호 기준으로 줄바꿈해서 가독성 높이기
+function formatStory(text) {
+  if (!text) return '';
+  return text
+    .split(/(?<=[.!?~])\s+/)
+    .map(s => esc(s.trim()))
+    .filter(Boolean)
+    .join('<br><br>');
+}
+
 // ── 동화 ────────────────────────────────
 async function makeStory() {
   if (storyGenerated) return;
@@ -427,7 +438,7 @@ async function makeStory() {
       <div class="story-result">
         <div class="story-book">
           <div class="story-book-label">✨ ${esc(currentWord)} 동화</div>
-          <p class="story-text">${esc(data.story)}</p>
+          <p class="story-text">${formatStory(data.story)}</p>
         </div>
         <div class="story-actions">
           <button class="btn-base" id="storyTtsBtn">🔊 읽어주기</button>
