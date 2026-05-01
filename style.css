@@ -53,27 +53,30 @@ html, body {
 
 .home-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 2rem 0 1.5rem;
+  padding: 1.75rem 0 1.25rem;
 }
-.logo { display: flex; align-items: center; gap: 12px; }
-.logo-icon {
-  width: 42px; height: 42px;
-  background: var(--sage-dim); border: 1px solid var(--sage-border);
-  border-radius: 13px; display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
+.logo { display: flex; flex-direction: column; gap: 3px; }
+.logo-sub {
+  font-size: 11px; color: var(--text-hint);
+  letter-spacing: 0.04em;
 }
-.logo-title { font-family: var(--font-display); font-size: 18px; color: var(--text); line-height: 1.1; }
-.logo-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.logo-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 24px; font-weight: 600;
+  color: var(--text); line-height: 1.1; letter-spacing: -0.02em;
+}
 
 .age-badge {
   display: flex; align-items: center; gap: 4px;
-  background: var(--sage-dim); border: 1px solid var(--sage-border);
-  border-radius: var(--radius-pill); padding: 7px 13px;
-  font-family: var(--font-body); font-size: 13px; font-weight: 600;
-  color: var(--sage); cursor: pointer; white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
+  background: rgba(74,124,95,0.08); border: 1px solid rgba(74,124,95,0.2);
+  border-radius: var(--radius-pill); padding: 7px 12px;
+  font-family: var(--font-body); cursor: pointer; white-space: nowrap;
+  transition: all 0.15s; flex-shrink: 0;
 }
-.age-badge:hover { background: rgba(74,124,95,0.18); }
-.age-badge-arrow { font-size: 10px; opacity: 0.7; }
+.age-badge:hover { background: rgba(74,124,95,0.15); border-color: var(--sage-border); }
+.age-badge-label { font-size: 11px; color: var(--text-hint); margin-right: 2px; }
+#ageBadgeText { font-size: 13px; font-weight: 600; color: var(--sage); }
+.age-badge-arrow { font-size: 10px; color: var(--sage); opacity: 0.7; }
 
 /* 검색창 */
 .search-hero { margin-bottom: 1.25rem; }
