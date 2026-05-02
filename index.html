@@ -75,20 +75,22 @@
         <p class="home-guide-sub">위에서 단어를 검색하거나<br>오늘의 단어를 눌러보세요</p>
       </div>
 
-    </div>
-
-    <!-- 앱 저장 버튼 + 배너 -->
-    <div class="home-bottom-area">
+      <!-- 앱 저장 버튼 — 스크롤 영역 안 -->
       <div class="install-btn-wrap" id="installBtnWrap">
         <button class="install-btn" onclick="showInstallSheet()">
           앱으로 저장하는 방법 보기 →
         </button>
       </div>
-      <div class="home-bottom-banner">
-        <div class="banner-ad" id="bannerAd"></div>
-        <div class="banner-contact">
-          <a href="mailto:srseo1008@gmail.com" class="banner-email">문의하기</a>
-        </div>
+
+    </div>
+
+    <!-- 하단 배너 -->
+    <div class="home-bottom-banner">
+      <div class="banner-ad" id="bannerAd">
+        <span class="banner-ad-text">광고</span>
+      </div>
+      <div class="banner-contact">
+        <a href="mailto:srseo1008@gmail.com" class="banner-email">문의하기</a>
       </div>
     </div>
   </div>
@@ -176,10 +178,15 @@
 
   <!-- 앱 저장 안내 시트 -->
   <div class="sheet-overlay hidden" id="installSheetOverlay" onclick="hideInstallSheet()">
-    <div class="age-sheet" onclick="event.stopPropagation()">
-      <div class="sheet-handle"></div>
-      <p class="homonym-label">설치 안내</p>
-      <p class="homonym-sheet-title">앱으로 저장하기</p>
+    <div class="age-sheet" id="installSheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle" id="installSheetHandle"></div>
+      <div class="sheet-header">
+        <div>
+          <p class="homonym-label">설치 안내</p>
+          <p class="homonym-sheet-title">앱으로 저장하기</p>
+        </div>
+        <button class="sheet-close-btn" onclick="hideInstallSheet()">✕</button>
+      </div>
       <p class="homonym-sheet-sub">홈화면에 추가하면 주소창 없이 앱처럼 열려요</p>
       <div class="install-steps">
         <div class="install-step">
