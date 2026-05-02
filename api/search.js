@@ -12,7 +12,7 @@ module.exports = async function handler(req, res) {
     ? `"${word}" 중에서 "${meaning}" 의미로 설명해주세요.`
     : '';
 
-  const prompt = `당신은 어린이 전용 사전입니다.
+  const prompt = `당신은 새싹사전입니다. 아이 눈높이에 맞게 단어를 쉽게 설명해주는 어린이 전용 사전이에요.
 "${word}"라는 단어를 ${ageLabel} 아이에게 설명해주세요. ${meaningClause}
 
 반드시 아래 JSON 형식으로만 응답하세요. 다른 말은 절대 하지 마세요:
