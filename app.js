@@ -382,6 +382,8 @@ function initSheetDrag(sheetId, closeFn) {
   let startY = 0, currentY = 0, isDragging = false;
 
   const onStart = e => {
+    // 버튼/입력창 위에서는 드래그 시작 안 함
+    if (e.target.closest('button, input, textarea, select')) return;
     startY = e.touches ? e.touches[0].clientY : e.clientY;
     isDragging = true;
     sheet.style.transition = 'none';
@@ -408,24 +410,11 @@ function initSheetDrag(sheetId, closeFn) {
     currentY = 0;
   };
 
-  // 핸들 터치 영역 확장
-  handle.style.cssText += ';padding:20px 0;margin:-20px 0;cursor:grab;';
-
-  // dragZone 중복 방지 — 기존 것 제거 후 새로 추가
-  const oldZone = sheet.querySelector('.drag-zone');
-  if (oldZone) oldZone.remove();
-  const dragZone = document.createElement('div');
-  dragZone.className = 'drag-zone';
-  dragZone.style.cssText = 'position:absolute;top:0;left:0;right:0;height:60px;z-index:1;';
-  sheet.style.position = 'relative';
-  sheet.insertBefore(dragZone, sheet.firstChild);
-
-  [handle, dragZone].forEach(el => {
-    el.addEventListener('touchstart', onStart, { passive: true });
-    el.addEventListener('touchmove',  onMove,  { passive: true });
-    el.addEventListener('touchend',   onEnd);
-    el.addEventListener('mousedown',  onStart);
-  });
+  // 시트 전체에서 드래그 감지
+  sheet.addEventListener('touchstart', onStart, { passive: true });
+  sheet.addEventListener('touchmove',  onMove,  { passive: true });
+  sheet.addEventListener('touchend',   onEnd);
+  sheet.addEventListener('mousedown',  onStart);
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup',   onEnd);
 }
