@@ -180,7 +180,18 @@ body {
   background: var(--sage); padding: 0.875rem 1.25rem;
   display: flex; flex-direction: column; gap: 10px;
 }
-.today-footer-text { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+.today-footer-text {
+  font-size: 13px; color: rgba(255,255,255,0.75);
+  line-height: 1.6; transition: opacity 0.3s;
+}
+.today-footer-text.loading {
+  opacity: 0.5;
+  animation: pulse-text 1.4s ease-in-out infinite;
+}
+@keyframes pulse-text {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 0.75; }
+}
 .today-btn {
   width: 100%; background: #fff; border: none; border-radius: var(--radius-sm);
   color: var(--sage); font-family: var(--font-body); font-size: 14px; font-weight: 600;
@@ -495,7 +506,7 @@ body {
   padding: 0.75rem 1.25rem;
   padding-bottom: calc(2rem + var(--safe-bottom));
   animation: slideUp 0.28s cubic-bezier(0.4,0,0.2,1);
-  position: relative;
+  position: relative; /* survey-x absolute 기준 */
 }
 
 /* 시트 핸들 — 드래그 인식 */
