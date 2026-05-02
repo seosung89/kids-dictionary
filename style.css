@@ -214,6 +214,7 @@ body {
 
 /* 설치 안내 카드 */
 .install-card {
+  display: none;
   background: var(--surface);
   border: 1px solid rgba(74,124,95,0.2);
   border-radius: var(--radius); padding: 1.125rem 1.25rem;
@@ -256,7 +257,6 @@ body {
 .install-step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
 .install-step-desc b { color: var(--text); font-weight: 600; }
 
-/* 광고 배너 */
 /* 광고 배너 + 문의 */
 .home-bottom-banner {
   flex-shrink: 0;
