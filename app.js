@@ -394,12 +394,23 @@ function initSheetDrag(sheetId, closeFn) {
     currentY = 0;
   };
 
-  handle.addEventListener('touchstart', onStart, { passive: true });
-  handle.addEventListener('touchmove',  onMove,  { passive: true });
-  handle.addEventListener('touchend',   onEnd);
-  handle.addEventListener('mousedown',  onStart);
-  window.addEventListener('mousemove',  onMove);
-  window.addEventListener('mouseup',    onEnd);
+  // 핸들 터치 영역을 44px로 확장 (시각적으론 4px 바만 보임)
+  handle.style.cssText += ';padding:20px 0;margin:-20px 0;cursor:grab;';
+
+  // 핸들 + 시트 상단 50px 영역 전체에서 드래그 감지
+  const dragZone = document.createElement('div');
+  dragZone.style.cssText = 'position:absolute;top:0;left:0;right:0;height:60px;z-index:1;';
+  sheet.style.position = 'relative';
+  sheet.insertBefore(dragZone, sheet.firstChild);
+
+  [handle, dragZone].forEach(el => {
+    el.addEventListener('touchstart', onStart, { passive: true });
+    el.addEventListener('touchmove',  onMove,  { passive: true });
+    el.addEventListener('touchend',   onEnd);
+    el.addEventListener('mousedown',  onStart);
+  });
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup',   onEnd);
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
@@ -435,7 +446,14 @@ async function searchWord() {
   addToHistory(word);
 
   const searchBtn = document.querySelector('.search-btn');
-  if (searchBtn) { searchBtn.textContent = '...'; searchBtn.disabled = true; }
+  if (searchBtn) {
+    searchBtn.innerHTML = '<span class="search-spinner"></span>';
+    searchBtn.disabled = true;
+  }
+
+  const restoreBtn = () => {
+    if (searchBtn) { searchBtn.innerHTML = '찾기'; searchBtn.disabled = false; }
+  };
 
   try {
     const res = await fetch('/api/homonym', {
@@ -445,14 +463,14 @@ async function searchWord() {
     if (res.ok) {
       const data = await res.json();
       if (data.hasHomonym && data.meanings && data.meanings.length > 1) {
-        if (searchBtn) { searchBtn.textContent = '찾기'; searchBtn.disabled = false; }
+        restoreBtn();
         showHomonymSheet(word, data.meanings);
         return;
       }
     }
   } catch { /* 동음이의어 확인 실패해도 검색 진행 */ }
 
-  if (searchBtn) { searchBtn.textContent = '찾기'; searchBtn.disabled = false; }
+  restoreBtn();
   doSearch(word, null);
 }
 
