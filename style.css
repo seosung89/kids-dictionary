@@ -135,6 +135,18 @@ body {
 .search-btn:active { transform: scale(0.97); }
 .search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+@keyframes shimmer {
+  0%   { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.today-skeleton {
+  display: inline-block;
+  width: 120px; height: 36px; border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
 /* ── 오늘의 단어 ── */
 .today-card {
   background: var(--surface);
