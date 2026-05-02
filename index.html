@@ -53,13 +53,15 @@
         <div class="today-body">
           <div class="today-tag">오늘의 단어</div>
           <div class="today-row">
-            <div class="today-word" id="todayWord">불러오는 중...</div>
-            <div class="today-emoji" id="todayEmoji">✨</div>
+            <div class="today-word" id="todayWord">
+              <span class="today-skeleton"></span>
+            </div>
+            <div class="today-emoji" id="todayEmoji"></div>
           </div>
         </div>
         <div class="today-footer">
-          <span class="today-footer-text" id="todayReason">아이와 함께 알아보세요</span>
-          <button class="today-btn" id="todayBtn" onclick="searchTodayWord()">알아보기 →</button>
+          <span class="today-footer-text" id="todayReason">불러오는 중...</span>
+          <button class="today-btn" id="todayBtn" onclick="searchTodayWord()" disabled>알아보기 →</button>
         </div>
       </div>
 
@@ -248,7 +250,8 @@
 
   <!-- 나이 선택 시트 -->
   <div class="sheet-overlay hidden" id="ageSheetOverlay" onclick="hideAgeSheet()">
-    <div class="age-sheet" onclick="event.stopPropagation()">
+    <div class="age-sheet" id="ageSheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
       <div class="age-sheet-title">아이 나이를 골라주세요</div>
       <div class="age-options">
         <button class="age-option" data-age="3" onclick="setAge(3)">
@@ -273,7 +276,8 @@
 
   <!-- 만족도 조사 -->
   <div class="sheet-overlay hidden" id="surveyOverlay">
-    <div class="age-sheet" onclick="event.stopPropagation()">
+    <div class="age-sheet" id="surveySheet" onclick="event.stopPropagation()" style="position:relative">
+      <div class="sheet-handle"></div>
       <button class="sheet-close-btn survey-x" onclick="closeSurvey(true)">✕</button>
       <div class="survey-emoji-big">💚</div>
       <div class="survey-title">앱이 마음에 드셨나요?</div>
