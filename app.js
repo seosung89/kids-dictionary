@@ -66,9 +66,10 @@ function cleanOldCache() {
   cutoff.setDate(cutoff.getDate() - 7);
   Object.keys(localStorage).forEach(key => {
     if (!key.startsWith('kidsDict_daily_')) return;
-    const parts = key.split('_');
-    if (parts.length < 4) return;
-    const [y, m, d] = parts[2].split('-').map(Number);
+    // kidsDict_daily_YYYY-M-D_age 형식
+    const match = key.match(/kidsDict_daily_(\d{4}-\d{1,2}-\d{1,2})_/);
+    if (!match) return;
+    const [y, m, d] = match[1].split('-').map(Number);
     if (new Date(y, m - 1, d) < cutoff) localStorage.removeItem(key);
   });
 }
@@ -150,10 +151,17 @@ function applyTodayWord(data) {
 }
 
 function searchTodayWord() {
-  const word = document.getElementById('todayWord').textContent;
-  if (!word || word === '불러오는 중...') return;
+  const wordEl = document.getElementById('todayWord');
+  // 스켈레톤 로딩 중이면 무시
+  if (wordEl.querySelector('.today-skeleton')) return;
+  const word = wordEl.textContent.trim();
+  if (!word) return;
   document.getElementById('searchInput').value = word;
-  searchWord();
+  // 오늘의 단어는 카운트 증가 없이 바로 검색
+  currentWord = word;
+  storyGenerated = false;
+  addToHistory(word);
+  doSearch(word, null);
 }
 
 // ── 나이 설정 ────────────────────────────
@@ -257,6 +265,12 @@ function showHomonymSheet(word, meanings) {
   `).join('');
 
   document.getElementById('homonymSheetOverlay').classList.remove('hidden');
+  // 매번 드래그 재설정
+  const hSheet = document.getElementById('homonymSheet');
+  if (hSheet) {
+    const h = hSheet.querySelector('.sheet-handle');
+    if (h) delete h._dragInit;
+  }
   setTimeout(() => initSheetDrag('homonymSheet', hideHomonymSheet), 50);
 }
 
@@ -394,11 +408,14 @@ function initSheetDrag(sheetId, closeFn) {
     currentY = 0;
   };
 
-  // 핸들 터치 영역을 44px로 확장 (시각적으론 4px 바만 보임)
+  // 핸들 터치 영역 확장
   handle.style.cssText += ';padding:20px 0;margin:-20px 0;cursor:grab;';
 
-  // 핸들 + 시트 상단 50px 영역 전체에서 드래그 감지
+  // dragZone 중복 방지 — 기존 것 제거 후 새로 추가
+  const oldZone = sheet.querySelector('.drag-zone');
+  if (oldZone) oldZone.remove();
   const dragZone = document.createElement('div');
+  dragZone.className = 'drag-zone';
   dragZone.style.cssText = 'position:absolute;top:0;left:0;right:0;height:60px;z-index:1;';
   sheet.style.position = 'relative';
   sheet.insertBefore(dragZone, sheet.firstChild);
@@ -478,7 +495,8 @@ async function searchWord() {
 async function doSearchDirect(word) {
   currentWord = word;
   storyGenerated = false;
-  addToHistory(word);
+  // 기록에 없을 때만 추가 (칩 탭 시 순서 변경 방지)
+  if (!searchHistory.includes(word)) addToHistory(word);
   doSearch(word, null);
 }
 
