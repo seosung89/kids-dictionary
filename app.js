@@ -118,6 +118,7 @@ async function renderTodayWord() {
       applyTodayWord(JSON.parse(cached));
       card.classList.remove('loading');
       if (btn) btn.disabled = false;
+      if (reasonEl) reasonEl.classList.remove('loading');
       return;
     } catch (e) {}
   }
@@ -334,6 +335,11 @@ function checkSurvey(trigger) {
 
 function showSurvey() {
   if (surveyDone) return;
+  // 별점 초기화
+  selectedStar = 0;
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+  document.getElementById('surveySubmit').disabled = true;
+  document.getElementById('surveyComment').value = '';
   document.getElementById('surveyOverlay').classList.remove('hidden');
   setTimeout(() => initSheetDrag('surveySheet', () => closeSurvey(false)), 50);
 }
@@ -386,8 +392,11 @@ function initSheetDrag(sheetId, closeFn) {
   let startY = 0, currentY = 0, isDragging = false;
 
   const onStart = e => {
-    // 버튼/입력창 위에서는 드래그 시작 안 함
-    if (e.target.closest('button, input, textarea, select')) return;
+    // 입력창/선택창에서는 드래그 시작 안 함
+    // 단, homonym-option 버튼은 드래그 허용 (꽉 채운 버튼이라 터치 영역이 넓음)
+    const target = e.target;
+    if (target.closest('input, textarea, select')) return;
+    if (target.closest('button') && !target.closest('.homonym-option, .age-option')) return;
     startY = e.touches ? e.touches[0].clientY : e.clientY;
     isDragging = true;
     sheet.style.transition = 'none';
