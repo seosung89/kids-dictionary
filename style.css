@@ -621,7 +621,7 @@ body {
 /* 토스트 */
 .toast {
   position: fixed;
-  bottom: calc(var(--banner-h) + var(--safe-bottom) + 12px);
+  bottom: calc(var(--safe-bottom) + 24px);
   left: 50%; transform: translateX(-50%);
   background: #2C2416; color: #FAF7F2; padding: 11px 22px;
   border-radius: var(--radius-pill); font-size: 13px; font-weight: 500;
