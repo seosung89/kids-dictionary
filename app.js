@@ -287,22 +287,22 @@ function submitSurvey() {
   showToast('소중한 의견 감사해요 💚');
 }
 
-// ── 설치 안내 카드 ───────────────────────
+// ── 설치 안내 ────────────────────────────
 function initInstallCard() {
-  const card = document.getElementById('installCard');
-  if (!card) return;
-  // 이미 닫았거나 PWA로 설치된 경우 숨김
-  if (localStorage.getItem('kidsDict_installClosed') === 'true') { card.style.display = 'none'; return; }
+  const wrap = document.getElementById('installBtnWrap');
+  if (!wrap) return;
+  // PWA로 이미 설치된 경우 버튼 숨김
   if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-    card.style.display = 'none'; return;
+    wrap.style.display = 'none';
   }
-  card.style.display = 'block';
 }
 
-function closeInstallCard() {
-  const card = document.getElementById('installCard');
-  if (card) card.style.display = 'none';
-  localStorage.setItem('kidsDict_installClosed', 'true');
+function showInstallSheet() {
+  document.getElementById('installSheetOverlay').classList.remove('hidden');
+}
+
+function hideInstallSheet() {
+  document.getElementById('installSheetOverlay').classList.add('hidden');
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
