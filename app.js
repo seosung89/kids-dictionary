@@ -291,18 +291,62 @@ function submitSurvey() {
 function initInstallCard() {
   const wrap = document.getElementById('installBtnWrap');
   if (!wrap) return;
-  // PWA로 이미 설치된 경우 버튼 숨김
   if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
     wrap.style.display = 'none';
   }
 }
 
 function showInstallSheet() {
-  document.getElementById('installSheetOverlay').classList.remove('hidden');
+  const overlay = document.getElementById('installSheetOverlay');
+  overlay.classList.remove('hidden');
+  initSheetDrag('installSheet', hideInstallSheet);
 }
 
 function hideInstallSheet() {
   document.getElementById('installSheetOverlay').classList.add('hidden');
+}
+
+// ── 시트 드래그 닫기 ─────────────────────
+function initSheetDrag(sheetId, closeFn) {
+  const sheet = document.getElementById(sheetId);
+  if (!sheet) return;
+  let startY = 0, currentY = 0, isDragging = false;
+
+  const onStart = e => {
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    isDragging = true;
+    sheet.style.transition = 'none';
+  };
+  const onMove = e => {
+    if (!isDragging) return;
+    currentY = (e.touches ? e.touches[0].clientY : e.clientY) - startY;
+    if (currentY > 0) sheet.style.transform = `translateY(${currentY}px)`;
+  };
+  const onEnd = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    sheet.style.transition = 'transform 0.3s ease';
+    if (currentY > 80) {
+      sheet.style.transform = 'translateY(100%)';
+      setTimeout(() => {
+        sheet.style.transform = '';
+        sheet.style.transition = '';
+        closeFn();
+      }, 280);
+    } else {
+      sheet.style.transform = '';
+    }
+    currentY = 0;
+  };
+
+  const handle = sheet.querySelector('.sheet-handle');
+  const target = handle || sheet;
+  target.addEventListener('touchstart', onStart, { passive: true });
+  target.addEventListener('touchmove', onMove, { passive: true });
+  target.addEventListener('touchend', onEnd);
+  target.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
