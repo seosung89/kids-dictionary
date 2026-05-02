@@ -102,19 +102,30 @@ function switchTab(tab) {
 
 // ── 오늘의 단어 ──────────────────────────
 async function renderTodayWord() {
-  const today   = new Date();
-  const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+  const today    = new Date();
+  const dateKey  = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
   const cacheKey = `kidsDict_daily_${dateKey}_${currentAge}`;
-  const card    = document.getElementById('todayCard');
-  const btn     = document.getElementById('todayBtn');
+  const card     = document.getElementById('todayCard');
+  const btn      = document.getElementById('todayBtn');
+  const wordEl   = document.getElementById('todayWord');
+  const emojiEl  = document.getElementById('todayEmoji');
   const reasonEl = document.getElementById('todayReason');
+
+  // 항상 스켈레톤 먼저 보여주기
   card.classList.add('loading');
   if (btn) btn.disabled = true;
-  if (reasonEl) reasonEl.classList.add('loading');
+  wordEl.innerHTML = '<span class="today-skeleton"></span>';
+  emojiEl.textContent = '';
+  if (reasonEl) {
+    reasonEl.classList.add('loading');
+    reasonEl.textContent = '불러오는 중...';
+  }
 
+  // 캐시 있으면 짧게 딜레이 후 표시 (나이 변경 인지 가능)
   const cached = localStorage.getItem(cacheKey);
   if (cached) {
     try {
+      await new Promise(r => setTimeout(r, 300));
       applyTodayWord(JSON.parse(cached));
       card.classList.remove('loading');
       if (btn) btn.disabled = false;
