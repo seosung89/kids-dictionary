@@ -7,20 +7,40 @@ const STORY_LOADING_MSGS = [
 ];
 
 const SEARCH_LOADING_MSGS = [
-  { emoji: '🔍', msg: '찾아볼게요!', sub: '설명을 준비하고 있어요...' },
+  { emoji: '🔍', msg: '찾아볼게요!',        sub: '설명을 준비하고 있어요...' },
   { emoji: '📖', msg: '사전을 펼치고 있어요!', sub: '쉬운 말로 바꾸는 중이에요...' },
   { emoji: '✍️', msg: '설명을 쓰고 있어요!', sub: '아이 눈높이에 맞게 다듬는 중...' },
-  { emoji: '🌿', msg: '거의 다 됐어요!', sub: '조금만 기다려주세요...' },
+  { emoji: '🌿', msg: '거의 다 됐어요!',     sub: '조금만 기다려주세요...' },
 ];
 
+const AGE_LABELS = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' };
+
 // ── 상태 ────────────────────────────────
-let currentAge    = parseInt(localStorage.getItem('kidsDict_age') || '5');
-let searchHistory = JSON.parse(localStorage.getItem('kidsDict_history') || '[]');
-let searchCount   = parseInt(localStorage.getItem('kidsDict_searchCount') || '0');
-let surveyDone    = localStorage.getItem('kidsDict_surveyDone') === 'true';
-let selectedStar  = 0;
-let currentWord   = '';
+let currentAge     = parseInt(localStorage.getItem('kidsDict_age') || '5');
+let searchHistory  = JSON.parse(localStorage.getItem('kidsDict_history') || '[]');
+let searchCount    = parseInt(localStorage.getItem('kidsDict_searchCount') || '0');
+let surveyDone     = localStorage.getItem('kidsDict_surveyDone') === 'true';
+let selectedStar   = 0;
+let currentWord    = '';
 let storyGenerated = false;
+
+// ── 유틸 ─────────────────────────────────
+function ageLabel() { return AGE_LABELS[currentAge]; }
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
 
 // ── 초기화 ──────────────────────────────
 function init() {
@@ -29,9 +49,27 @@ function init() {
   renderHistory();
   renderTodayWord();
   initInstallCard();
-  window.addEventListener('popstate', () => goHome());
+  cleanOldCache();
+
+  window.addEventListener('popstate', () => {
+    const onResult = !document.getElementById('resultScreen').classList.contains('hidden');
+    if (onResult) goHome();
+  });
   document.getElementById('searchInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') searchWord();
+  });
+}
+
+// ── 오래된 캐시 정리 ─────────────────────
+function cleanOldCache() {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
+  Object.keys(localStorage).forEach(key => {
+    if (!key.startsWith('kidsDict_daily_')) return;
+    const parts = key.split('_');
+    if (parts.length < 4) return;
+    const [y, m, d] = parts[2].split('-').map(Number);
+    if (new Date(y, m - 1, d) < cutoff) localStorage.removeItem(key);
   });
 }
 
@@ -43,6 +81,7 @@ function goResult() {
 }
 
 function goHome() {
+  window.speechSynthesis && window.speechSynthesis.cancel(); // TTS 정지
   document.getElementById('resultScreen').classList.add('hidden');
   document.getElementById('homeScreen').classList.remove('hidden');
   document.getElementById('searchInput').value = '';
@@ -53,22 +92,24 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(t =>
     t.classList.toggle('active', t.dataset.tab === tab)
   );
-  document.querySelectorAll('.tab-content').forEach(c =>
-    c.classList.toggle('hidden', c.id !== `tab-${tab}`)
-  );
+  document.querySelectorAll('.tab-content').forEach(c => {
+    const isActive = c.id === `tab-${tab}`;
+    c.classList.toggle('active', isActive);
+    c.classList.toggle('hidden', !isActive);
+  });
 }
 
 // ── 오늘의 단어 ──────────────────────────
 async function renderTodayWord() {
-  const today  = new Date();
+  const today   = new Date();
   const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
-  const ageKey  = `kidsDict_daily_${dateKey}_${currentAge}`;
-  const card    = document.getElementById('todayCard');
-  const btn     = document.getElementById('todayBtn');
+  const cacheKey = `kidsDict_daily_${dateKey}_${currentAge}`;
+  const card = document.getElementById('todayCard');
+  const btn  = document.getElementById('todayBtn');
   card.classList.add('loading');
   if (btn) btn.disabled = true;
 
-  const cached = localStorage.getItem(ageKey);
+  const cached = localStorage.getItem(cacheKey);
   if (cached) {
     try {
       applyTodayWord(JSON.parse(cached));
@@ -78,18 +119,17 @@ async function renderTodayWord() {
     } catch (e) {}
   }
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
   try {
     const res = await fetch('/api/daily', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ageLabel, date: dateKey })
+      body: JSON.stringify({ ageLabel: ageLabel(), date: dateKey })
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
     if (!data.word) throw new Error();
-    localStorage.setItem(ageKey, JSON.stringify(data));
+    localStorage.setItem(cacheKey, JSON.stringify(data));
     applyTodayWord(data);
-  } catch (e) {
+  } catch {
     const fallback = { 3:'행복', 5:'감사', 7:'용기', 10:'책임' };
     applyTodayWord({ word: fallback[currentAge] || '감사', emoji: '🌟', reason: '아이와 함께 알아보세요' });
   } finally {
@@ -99,7 +139,7 @@ async function renderTodayWord() {
 }
 
 function applyTodayWord(data) {
-  document.getElementById('todayWord').textContent  = data.word  || '감사';
+  document.getElementById('todayWord').textContent = data.word  || '감사';
   document.getElementById('todayEmoji').textContent = data.emoji || '💡';
   const reason = document.getElementById('todayReason');
   if (reason) reason.textContent = data.reason || '아이와 함께 알아보세요';
@@ -124,14 +164,11 @@ function setAge(age) {
   hideAgeSheet();
   renderTodayWord();
   const onResult = !document.getElementById('resultScreen').classList.contains('hidden');
-  if (onResult) {
-    showToast(`나이가 ${({ 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[age])}(으)로 변경됐어요`);
-  }
+  if (onResult) showToast(`나이가 ${AGE_LABELS[age]}로 변경됐어요`);
 }
 
 function updateAgeBadge(age) {
-  const labels = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' };
-  document.getElementById('ageBadgeText').textContent = labels[age];
+  document.getElementById('ageBadgeText').textContent = AGE_LABELS[age];
 }
 
 function setActiveAgeOption(age) {
@@ -196,16 +233,13 @@ function shareText(text) {
 
 // ── 동음이의어 선택 시트 ─────────────────
 function showHomonymSheet(word, meanings) {
-  const overlay = document.getElementById('homonymSheetOverlay');
   document.getElementById('homonymSheetWord').textContent = `"${word}"의 뜻을 골라주세요`;
-  // 받침 여부에 따라 을/를 구분
-  const lastChar = word.charCodeAt(word.length - 1);
+  const lastChar   = word.charCodeAt(word.length - 1);
   const hasBatchim = (lastChar - 0xAC00) % 28 !== 0;
   document.getElementById('homonymSheetSub').textContent =
     `어떤 ${word}${hasBatchim ? '을' : '를'} 알고 싶으세요?`;
 
-  const list = document.getElementById('homonymList');
-  list.innerHTML = meanings.map(m => `
+  document.getElementById('homonymList').innerHTML = meanings.map(m => `
     <button class="homonym-option" onclick="selectHomonym('${esc(word)}', '${esc(m.meaning)}')">
       <div class="homonym-emoji">${esc(m.emoji)}</div>
       <div class="homonym-info">
@@ -214,7 +248,9 @@ function showHomonymSheet(word, meanings) {
       </div>
     </button>
   `).join('');
-  overlay.classList.remove('hidden');
+
+  document.getElementById('homonymSheetOverlay').classList.remove('hidden');
+  setTimeout(() => initSheetDrag('homonymSheet', hideHomonymSheet), 50);
 }
 
 function hideHomonymSheet() {
@@ -237,11 +273,18 @@ async function showTagSheet(tag) {
   loading.classList.remove('hidden');
   overlay.classList.remove('hidden');
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+  // 태그 시트는 내용이 바뀌므로 드래그 재설정
+  const tagSheet = document.getElementById('tagSheet');
+  if (tagSheet) {
+    const handle = tagSheet.querySelector('.sheet-handle');
+    if (handle) delete handle._dragInit;
+  }
+  setTimeout(() => initSheetDrag('tagSheet', hideTagSheet), 50);
+
   try {
     const res = await fetch('/api/related', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tag, ageLabel })
+      body: JSON.stringify({ tag, ageLabel: ageLabel() })
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
@@ -297,9 +340,8 @@ function initInstallCard() {
 }
 
 function showInstallSheet() {
-  const overlay = document.getElementById('installSheetOverlay');
-  overlay.classList.remove('hidden');
-  initSheetDrag('installSheet', hideInstallSheet);
+  document.getElementById('installSheetOverlay').classList.remove('hidden');
+  setTimeout(() => initSheetDrag('installSheet', hideInstallSheet), 50);
 }
 
 function hideInstallSheet() {
@@ -310,6 +352,11 @@ function hideInstallSheet() {
 function initSheetDrag(sheetId, closeFn) {
   const sheet = document.getElementById(sheetId);
   if (!sheet) return;
+  const handle = sheet.querySelector('.sheet-handle');
+  if (!handle) return;
+  if (handle._dragInit) return;
+  handle._dragInit = true;
+
   let startY = 0, currentY = 0, isDragging = false;
 
   const onStart = e => {
@@ -325,7 +372,7 @@ function initSheetDrag(sheetId, closeFn) {
   const onEnd = () => {
     if (!isDragging) return;
     isDragging = false;
-    sheet.style.transition = 'transform 0.3s ease';
+    sheet.style.transition = 'transform 0.28s ease';
     if (currentY > 80) {
       sheet.style.transform = 'translateY(100%)';
       setTimeout(() => {
@@ -339,14 +386,12 @@ function initSheetDrag(sheetId, closeFn) {
     currentY = 0;
   };
 
-  const handle = sheet.querySelector('.sheet-handle');
-  const target = handle || sheet;
-  target.addEventListener('touchstart', onStart, { passive: true });
-  target.addEventListener('touchmove', onMove, { passive: true });
-  target.addEventListener('touchend', onEnd);
-  target.addEventListener('mousedown', onStart);
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onEnd);
+  handle.addEventListener('touchstart', onStart, { passive: true });
+  handle.addEventListener('touchmove',  onMove,  { passive: true });
+  handle.addEventListener('touchend',   onEnd);
+  handle.addEventListener('mousedown',  onStart);
+  window.addEventListener('mousemove',  onMove);
+  window.addEventListener('mouseup',    onEnd);
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
@@ -358,13 +403,13 @@ function renderLinkedDef(text) {
   });
 }
 
-// ── 빠른 검색 ────────────────────────────
+// ── 빠른 검색 (카운트 증가 없음) ──────────
 function quickSearch(word) {
   document.getElementById('searchInput').value = word;
-  searchWord();
+  doSearchDirect(word);
 }
 
-// ── 검색 ────────────────────────────────
+// ── 검색 (홈에서 직접 입력 — 카운트 증가) ──
 async function searchWord() {
   const word = document.getElementById('searchInput').value.trim();
   if (!word) {
@@ -376,28 +421,38 @@ async function searchWord() {
 
   currentWord = word;
   storyGenerated = false;
+  // 홈에서 직접 검색할 때만 카운트 증가
   searchCount++;
   localStorage.setItem('kidsDict_searchCount', searchCount);
   addToHistory(word);
 
-  // 동음이의어 먼저 확인
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
+  const searchBtn = document.querySelector('.search-btn');
+  if (searchBtn) { searchBtn.textContent = '...'; searchBtn.disabled = true; }
+
   try {
     const res = await fetch('/api/homonym', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word, ageLabel })
+      body: JSON.stringify({ word, ageLabel: ageLabel() })
     });
     if (res.ok) {
       const data = await res.json();
       if (data.hasHomonym && data.meanings && data.meanings.length > 1) {
+        if (searchBtn) { searchBtn.textContent = '찾기'; searchBtn.disabled = false; }
         showHomonymSheet(word, data.meanings);
         return;
       }
     }
-  } catch (e) {
-    // 동음이의어 확인 실패해도 그냥 검색 진행
-  }
+  } catch { /* 동음이의어 확인 실패해도 검색 진행 */ }
 
+  if (searchBtn) { searchBtn.textContent = '찾기'; searchBtn.disabled = false; }
+  doSearch(word, null);
+}
+
+// ── 빠른 검색용 내부 함수 (카운트 없음) ─────
+async function doSearchDirect(word) {
+  currentWord = word;
+  storyGenerated = false;
+  addToHistory(word);
   doSearch(word, null);
 }
 
@@ -414,12 +469,10 @@ async function doSearch(word, meaning) {
   document.getElementById('resultContent').classList.add('hidden');
   document.getElementById('resultHeaderWord').textContent = word;
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
-
   try {
     const res = await fetch('/api/search', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word, ageLabel, meaning })
+      body: JSON.stringify({ word, ageLabel: ageLabel(), meaning })
     });
     if (!res.ok) throw new Error(`서버 오류: ${res.status}`);
     const p = await res.json();
@@ -446,10 +499,9 @@ async function doSearch(word, meaning) {
 
 // ── 결과 렌더링 ──────────────────────────
 function renderResult(word, p) {
-  document.getElementById('wordEmoji').textContent   = p.emoji   || '📖';
-  document.getElementById('wordBig').textContent     = word;
-  document.getElementById('wordReading').textContent = p.reading || '';
-
+  document.getElementById('wordEmoji').textContent    = p.emoji   || '📖';
+  document.getElementById('wordBig').textContent      = word;
+  document.getElementById('wordReading').textContent  = p.reading || '';
   document.getElementById('explainDef').innerHTML     = renderLinkedDef(p.definition);
   const exampleText = (p.example || '').replace(/^"|"$/g, '');
   document.getElementById('explainExample').innerHTML = renderLinkedDef(exampleText);
@@ -477,13 +529,16 @@ function renderResult(word, p) {
 
   document.getElementById('ttsBtn').onclick   = () => speak(speakText, document.getElementById('ttsBtn'));
   document.getElementById('shareBtn').onclick = () => shareText(`🌱 새싹사전\n\n"${word}"\n${cleanDef}\n\n예문: ${cleanEx}\n\n아이와 함께 단어를 배워요 🌿`);
-  document.getElementById('retryBtn').onclick = () => doSearch(word, null);
+  document.getElementById('retryBtn').onclick = () => {
+    document.getElementById('searchInput').value = word;
+    searchWord();
+  };
 
   document.getElementById('resultLoading').classList.add('hidden');
   document.getElementById('resultContent').classList.remove('hidden');
 }
 
-// ── 동화 포맷팅 ─────────────────────────
+// ── 동화 ────────────────────────────────
 function formatStory(text) {
   if (!text) return '';
   return text
@@ -494,7 +549,6 @@ function formatStory(text) {
     .join('<br><br>');
 }
 
-// ── 동화 ────────────────────────────────
 async function makeStory() {
   if (storyGenerated) return;
   const lm = STORY_LOADING_MSGS[Math.floor(Math.random() * STORY_LOADING_MSGS.length)];
@@ -504,11 +558,10 @@ async function makeStory() {
       <p class="story-loading-text">${lm.text}</p>
     </div>`;
 
-  const ageLabel = { 3:'3~4살', 5:'5~6살', 7:'7~8살', 10:'9~10살' }[currentAge];
   try {
     const res = await fetch('/api/story', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word: currentWord, ageLabel })
+      body: JSON.stringify({ word: currentWord, ageLabel: ageLabel() })
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
@@ -554,23 +607,6 @@ function restartStory() {
       <div class="story-intro-sub">검색한 단어가 주인공인<br>짧은 동화를 만들어드려요</div>
       <button class="btn-amber full" onclick="makeStory()">동화 시작하기</button>
     </div>`;
-}
-
-// ── 토스트 ──────────────────────────────
-function showToast(msg) {
-  document.querySelectorAll('.toast').forEach(t => t.remove());
-  const t = document.createElement('div');
-  t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
-}
-
-// ── 유틸 ────────────────────────────────
-function esc(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 init();
