@@ -132,8 +132,17 @@ body {
   min-width: 52px; text-align: center;
 }
 .search-btn:hover { background: var(--sage-light); }
-.search-btn:active { transform: scale(0.97); }
-.search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.search-btn:disabled { opacity: 0.85; cursor: not-allowed; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.search-spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
 
 @keyframes shimmer {
   0%   { background-position: -200px 0; }
