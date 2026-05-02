@@ -107,7 +107,9 @@ function applyTodayWord(data) {
 
 function searchTodayWord() {
   const word = document.getElementById('todayWord').textContent;
-  if (word && word !== '불러오는 중...') quickSearch(word);
+  if (!word || word === '불러오는 중...') return;
+  document.getElementById('searchInput').value = word;
+  searchWord();
 }
 
 // ── 나이 설정 ────────────────────────────
@@ -196,11 +198,15 @@ function shareText(text) {
 function showHomonymSheet(word, meanings) {
   const overlay = document.getElementById('homonymSheetOverlay');
   document.getElementById('homonymSheetWord').textContent = `"${word}"의 뜻을 골라주세요`;
-  document.getElementById('homonymSheetSub').textContent  = `어떤 ${word}을(를) 알고 싶으세요?`;
+  // 받침 여부에 따라 을/를 구분
+  const lastChar = word.charCodeAt(word.length - 1);
+  const hasBatchim = (lastChar - 0xAC00) % 28 !== 0;
+  document.getElementById('homonymSheetSub').textContent =
+    `어떤 ${word}${hasBatchim ? '을' : '를'} 알고 싶으세요?`;
 
   const list = document.getElementById('homonymList');
-  list.innerHTML = meanings.map((m, i) => `
-    <button class="homonym-option" onclick="selectHomonym('${esc(word)}', '${esc(m.meaning)}', '${esc(m.desc)}')">
+  list.innerHTML = meanings.map(m => `
+    <button class="homonym-option" onclick="selectHomonym('${esc(word)}', '${esc(m.meaning)}')">
       <div class="homonym-emoji">${esc(m.emoji)}</div>
       <div class="homonym-info">
         <div class="homonym-word">${esc(word)} (${esc(m.meaning)})</div>
@@ -215,7 +221,7 @@ function hideHomonymSheet() {
   document.getElementById('homonymSheetOverlay').classList.add('hidden');
 }
 
-function selectHomonym(word, meaning, desc) {
+function selectHomonym(word, meaning) {
   hideHomonymSheet();
   currentWord = word;
   doSearch(word, meaning);
