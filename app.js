@@ -139,10 +139,14 @@ async function renderTodayWord() {
 }
 
 function applyTodayWord(data) {
-  document.getElementById('todayWord').textContent = data.word  || '감사';
-  document.getElementById('todayEmoji').textContent = data.emoji || '💡';
-  const reason = document.getElementById('todayReason');
-  if (reason) reason.textContent = data.reason || '아이와 함께 알아보세요';
+  const wordEl   = document.getElementById('todayWord');
+  const emojiEl  = document.getElementById('todayEmoji');
+  const reasonEl = document.getElementById('todayReason');
+  // 스켈레톤 제거 후 단어 표시
+  wordEl.innerHTML  = '';
+  wordEl.textContent  = data.word  || '감사';
+  emojiEl.textContent = data.emoji || '🌱';
+  if (reasonEl) reasonEl.textContent = data.reason || '아이와 함께 알아보세요';
 }
 
 function searchTodayWord() {
@@ -153,8 +157,11 @@ function searchTodayWord() {
 }
 
 // ── 나이 설정 ────────────────────────────
-function showAgeSheet() { document.getElementById('ageSheetOverlay').classList.remove('hidden'); }
-function hideAgeSheet()  { document.getElementById('ageSheetOverlay').classList.add('hidden'); }
+function showAgeSheet() {
+  document.getElementById('ageSheetOverlay').classList.remove('hidden');
+  setTimeout(() => initSheetDrag('ageSheet', hideAgeSheet), 50);
+}
+function hideAgeSheet() { document.getElementById('ageSheetOverlay').classList.add('hidden'); }
 
 function setAge(age) {
   currentAge = age;
@@ -310,6 +317,7 @@ function checkSurvey(trigger) {
 function showSurvey() {
   if (surveyDone) return;
   document.getElementById('surveyOverlay').classList.remove('hidden');
+  setTimeout(() => initSheetDrag('surveySheet', () => closeSurvey(false)), 50);
 }
 
 function closeSurvey(done) {
