@@ -105,10 +105,12 @@ async function renderTodayWord() {
   const today   = new Date();
   const dateKey = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
   const cacheKey = `kidsDict_daily_${dateKey}_${currentAge}`;
-  const card = document.getElementById('todayCard');
-  const btn  = document.getElementById('todayBtn');
+  const card    = document.getElementById('todayCard');
+  const btn     = document.getElementById('todayBtn');
+  const reasonEl = document.getElementById('todayReason');
   card.classList.add('loading');
   if (btn) btn.disabled = true;
+  if (reasonEl) reasonEl.classList.add('loading');
 
   const cached = localStorage.getItem(cacheKey);
   if (cached) {
@@ -143,11 +145,13 @@ function applyTodayWord(data) {
   const wordEl   = document.getElementById('todayWord');
   const emojiEl  = document.getElementById('todayEmoji');
   const reasonEl = document.getElementById('todayReason');
-  // 스켈레톤 제거 후 단어 표시
-  wordEl.innerHTML  = '';
+  wordEl.innerHTML    = '';
   wordEl.textContent  = data.word  || '감사';
   emojiEl.textContent = data.emoji || '🌱';
-  if (reasonEl) reasonEl.textContent = data.reason || '아이와 함께 알아보세요';
+  if (reasonEl) {
+    reasonEl.classList.remove('loading');
+    reasonEl.textContent = data.reason || '아이와 함께 알아보세요';
+  }
 }
 
 function searchTodayWord() {
