@@ -179,7 +179,7 @@
   <!-- 앱 저장 안내 시트 -->
   <div class="sheet-overlay hidden" id="installSheetOverlay" onclick="hideInstallSheet()">
     <div class="age-sheet" id="installSheet" onclick="event.stopPropagation()">
-      <div class="sheet-handle" id="installSheetHandle"></div>
+      <div class="sheet-handle"></div>
       <div class="sheet-header">
         <div>
           <p class="homonym-label">설치 안내</p>
@@ -201,7 +201,7 @@
           </div>
         </div>
         <div class="install-step">
-          <div class="install-step-icon">🤖</div>
+          <div class="install-step-icon">📱</div>
           <div>
             <div class="install-step-os">안드로이드 — 크롬으로 여세요</div>
             <div class="install-step-desc">
@@ -217,10 +217,15 @@
 
   <!-- 동음이의어 선택 시트 -->
   <div class="sheet-overlay hidden" id="homonymSheetOverlay" onclick="hideHomonymSheet()">
-    <div class="age-sheet" onclick="event.stopPropagation()">
+    <div class="age-sheet" id="homonymSheet" onclick="event.stopPropagation()">
       <div class="sheet-handle"></div>
-      <p class="homonym-label">동음이의어</p>
-      <p class="homonym-sheet-title" id="homonymSheetWord">"밤"의 뜻을 골라주세요</p>
+      <div class="sheet-header">
+        <div>
+          <p class="homonym-label">동음이의어</p>
+          <p class="homonym-sheet-title" id="homonymSheetWord">"밤"의 뜻을 골라주세요</p>
+        </div>
+        <button class="sheet-close-btn" onclick="hideHomonymSheet()">✕</button>
+      </div>
       <p class="homonym-sheet-sub" id="homonymSheetSub">어떤 밤을 알고 싶으세요?</p>
       <div class="homonym-list" id="homonymList"></div>
     </div>
@@ -228,7 +233,8 @@
 
   <!-- 태그 관련 단어 시트 -->
   <div class="sheet-overlay hidden" id="tagSheetOverlay" onclick="hideTagSheet()">
-    <div class="age-sheet" onclick="event.stopPropagation()">
+    <div class="age-sheet" id="tagSheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
       <div class="sheet-header">
         <div class="sheet-title" id="tagSheetTitle">#감정 관련 단어</div>
         <button class="sheet-close-btn" onclick="hideTagSheet()">✕</button>
