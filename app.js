@@ -444,26 +444,16 @@ function initSheetDrag(sheetId, closeFn) {
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
-// 1) 모든 어절을 word-tap span으로 감싸기
-// 2) [단어] 표시된 것만 word-link 클래스 추가
+// 공백 기준 어절 단위로 탭 가능한 span으로 감쌈
 function renderLinkedDef(text) {
   if (!text) return '';
-
-  // [단어] 안의 단어 목록 수집
-  const highlighted = new Set();
-  text.replace(/\[([^\]]+)\]/g, (_, w) => { highlighted.add(w); return ''; });
-
-  // [단어] 괄호 제거한 순수 텍스트
+  // [단어] 괄호가 혹시 남아있으면 제거
   const plain = text.replace(/\[([^\]]+)\]/g, '$1');
-
-  // 공백 기준으로 토큰 분리 → 각 어절을 span으로 감싸기
   return plain.replace(/\S+/g, token => {
-    // 앞뒤 구두점 분리 (마침표, 쉼표, 느낌표 등)
     const m = token.match(/^([^가-힣A-Za-z0-9]*)([가-힣A-Za-z0-9][가-힣A-Za-z0-9\-]*)([^가-힣A-Za-z0-9]*)$/);
     if (!m) return esc(token);
     const [, pre, word, post] = m;
-    const cls = highlighted.has(word) ? 'word-tap word-link' : 'word-tap';
-    return `${esc(pre)}<span class="${cls}" data-word="${esc(word)}">${esc(word)}</span>${esc(post)}`;
+    return `${esc(pre)}<span class="word-tap" data-word="${esc(word)}">${esc(word)}</span>${esc(post)}`;
   });
 }
 
