@@ -439,18 +439,33 @@ function initSheetDrag(sheetId, closeFn) {
   sheet.addEventListener('touchmove',  onMove,  { passive: true });
   sheet.addEventListener('touchend',   onEnd);
   sheet.addEventListener('mousedown',  onStart);
+
+  // window에 누적 등록 방지 — 이전 핸들러 제거 후 재등록
+  if (sheet._mouseMoveHandler) window.removeEventListener('mousemove', sheet._mouseMoveHandler);
+  if (sheet._mouseUpHandler)   window.removeEventListener('mouseup',   sheet._mouseUpHandler);
+  sheet._mouseMoveHandler = onMove;
+  sheet._mouseUpHandler   = onEnd;
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup',   onEnd);
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
+// onclick 인라인 속성 대신 data-word + 이벤트 위임 사용
+// → 특수문자(쉼표, 괄호, ~, 따옴표 등)가 포함돼도 클릭이 깨지지 않음
 function renderLinkedDef(text) {
   if (!text) return '';
   return text.replace(/\[([^\]]+)\]/g, (_, w) => {
-    const safe = w.replace(/'/g, "\\'");
-    return `<span class="word-link" onclick="quickSearch('${safe}')">${w}</span>`;
+    return `<span class="word-link" data-word="${esc(w)}">${esc(w)}</span>`;
   });
 }
+
+// 설명/예문 영역 클릭 이벤트 위임 — 문서 로드 후 한 번만 등록
+document.addEventListener('click', e => {
+  const link = e.target.closest('.word-link[data-word]');
+  if (!link) return;
+  const word = link.dataset.word;
+  if (word) quickSearch(word);
+});
 
 // ── 빠른 검색 (카운트 증가 없음) ──────────
 function quickSearch(word) {
