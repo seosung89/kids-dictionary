@@ -444,15 +444,15 @@ function initSheetDrag(sheetId, closeFn) {
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
-// 한글 단어(2글자 이상)를 모두 탭 가능한 span으로 감쌈
-// [단어] 형식은 word-link(강조) 스타일 적용
+// 한글 1글자 이상 / 영문 / 숫자 모두 탭 가능한 span으로 감쌈
+// [단어] 형식은 word-link(강조) 스타일 추가 적용
 function renderLinkedDef(text) {
   if (!text) return '';
   // [단어] 표시를 임시 마커로 보존
   const markedWords = new Set();
   const step1 = text.replace(/\[([^\]]+)\]/g, (_, w) => { markedWords.add(w); return `【${w}】`; });
-  // 한글 2글자 이상 → 탭 가능한 span
-  const step2 = step1.replace(/[가-힣]{2,}/g, w => {
+  // 한글 1글자 이상 / 영숫자 연속 → 탭 가능한 span
+  const step2 = step1.replace(/[가-힣]+|[A-Za-z0-9]+/g, w => {
     const cls = markedWords.has(w) ? 'word-tap word-link' : 'word-tap';
     return `<span class="${cls}" data-word="${esc(w)}">${esc(w)}</span>`;
   });
