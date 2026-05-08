@@ -450,13 +450,36 @@ function initSheetDrag(sheetId, closeFn) {
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
-// onclick 인라인 속성 대신 data-word + 이벤트 위임 사용
-// → 특수문자(쉼표, 괄호, ~, 따옴표 등)가 포함돼도 클릭이 깨지지 않음
-function renderLinkedDef(text) {
+// 1) [단어] 형식 → 링크
+// 2) 그 외 synonyms/antonyms/related 단어도 텍스트에서 찾아 자동 링크화
+function renderLinkedDef(text, extraWords) {
   if (!text) return '';
-  return text.replace(/\[([^\]]+)\]/g, (_, w) => {
+  // 1단계: [단어] 형식 치환
+  let result = text.replace(/\[([^\]]+)\]/g, (_, w) => {
     return `<span class="word-link" data-word="${esc(w)}">${esc(w)}</span>`;
   });
+  // 2단계: 관련 단어 자동 링크 (이미 링크된 부분 제외)
+  if (extraWords && extraWords.length) {
+    // 길이 긴 단어부터 처리 (짧은 단어가 긴 단어 일부를 먼저 치환하는 것 방지)
+    const sorted = [...extraWords].filter(w => w && w.length >= 2).sort((a,b) => b.length - a.length);
+    sorted.forEach(w => {
+      const escaped = esc(w);
+      // 이미 data-word 안에 있는 건 건드리지 않음 — 텍스트 노드만 치환
+      const safe = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      result = result.replace(
+        new RegExp(`(?<!data-word="[^"]*)(${safe})(?=[^"]*(?:"|<|$))`, 'g'),
+        (match, p1, offset, str) => {
+          // 이미 태그 속성 안이면 건너뜀
+          const before = str.slice(0, offset);
+          const openTags = (before.match(/</g) || []).length;
+          const closeTags = (before.match(/>/g) || []).length;
+          if (openTags > closeTags) return match; // 태그 안쪽
+          return `<span class="word-link" data-word="${escaped}">${escaped}</span>`;
+        }
+      );
+    });
+  }
+  return result;
 }
 
 // 설명/예문 영역 클릭 이벤트 위임 — 문서 로드 후 한 번만 등록
@@ -574,9 +597,9 @@ function renderResult(word, p) {
   document.getElementById('wordEmoji').textContent    = p.emoji   || '📖';
   document.getElementById('wordBig').textContent      = word;
   document.getElementById('wordReading').textContent  = p.reading || '';
-  document.getElementById('explainDef').innerHTML     = renderLinkedDef(p.definition);
+  document.getElementById('explainDef').innerHTML     = renderLinkedDef(p.definition, [...(p.synonyms||[]), ...(p.antonyms||[]), ...(p.related||[])]);
   const exampleText = (p.example || '').replace(/^"|"$/g, '');
-  document.getElementById('explainExample').innerHTML = renderLinkedDef(exampleText);
+  document.getElementById('explainExample').innerHTML = renderLinkedDef(exampleText, [...(p.synonyms||[]), ...(p.antonyms||[]), ...(p.related||[])]);
 
   document.getElementById('synonymChips').innerHTML = (p.synonyms || [])
     .map(w => `<button class="wchip" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
