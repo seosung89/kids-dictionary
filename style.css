@@ -380,9 +380,8 @@ body {
   border-radius: 3px;
   padding: 0 1px;
   transition: background 0.12s;
-  border-bottom: 1.5px dotted rgba(74,124,95,0.4);
 }
-.word-tap:hover, .word-tap:active { background: rgba(74,124,95,0.12); }
+.word-tap:active { background: rgba(74,124,95,0.15); }
 
 .section-row-label {
   display: flex; align-items: center; gap: 6px;
