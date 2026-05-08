@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kids-dict-v5';
+const CACHE_NAME = 'kids-dict-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
