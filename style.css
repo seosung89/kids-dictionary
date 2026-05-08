@@ -367,13 +367,21 @@ body {
   border-radius: var(--radius-sm); padding: 1rem 1.125rem;
   margin-bottom: 1rem;
 }
-.word-link {
-  color: var(--sage); font-weight: 600;
+.word-link { color: var(--sage); font-weight: 600;
   background: var(--sage-dim); border-radius: 4px; padding: 1px 5px;
   cursor: pointer; transition: all 0.15s;
   border-bottom: 1.5px solid rgba(74,124,95,0.3); white-space: nowrap;
 }
 .word-link:hover { background: rgba(74,124,95,0.2); }
+
+/* 설명/예문 안 모든 단어 탭 가능 */
+.word-tap {
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0 1px;
+  transition: background 0.12s;
+}
+.word-tap:hover, .word-tap:active { background: rgba(74,124,95,0.12); }
 
 .section-row-label {
   display: flex; align-items: center; gap: 6px;
