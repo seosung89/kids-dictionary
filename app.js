@@ -439,55 +439,32 @@ function initSheetDrag(sheetId, closeFn) {
   sheet.addEventListener('touchmove',  onMove,  { passive: true });
   sheet.addEventListener('touchend',   onEnd);
   sheet.addEventListener('mousedown',  onStart);
-
-  // window에 누적 등록 방지 — 이전 핸들러 제거 후 재등록
-  if (sheet._mouseMoveHandler) window.removeEventListener('mousemove', sheet._mouseMoveHandler);
-  if (sheet._mouseUpHandler)   window.removeEventListener('mouseup',   sheet._mouseUpHandler);
-  sheet._mouseMoveHandler = onMove;
-  sheet._mouseUpHandler   = onEnd;
   window.addEventListener('mousemove', onMove);
   window.addEventListener('mouseup',   onEnd);
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
-// 1) [단어] 형식 → 링크
-// 2) 그 외 synonyms/antonyms/related 단어도 텍스트에서 찾아 자동 링크화
-function renderLinkedDef(text, extraWords) {
+// 한글 단어(2글자 이상)를 모두 탭 가능한 span으로 감쌈
+// [단어] 형식은 word-link(강조) 스타일 적용
+function renderLinkedDef(text) {
   if (!text) return '';
-  // 1단계: [단어] 형식 치환
-  let result = text.replace(/\[([^\]]+)\]/g, (_, w) => {
-    return `<span class="word-link" data-word="${esc(w)}">${esc(w)}</span>`;
+  // [단어] 표시를 임시 마커로 보존
+  const markedWords = new Set();
+  const step1 = text.replace(/\[([^\]]+)\]/g, (_, w) => { markedWords.add(w); return `【${w}】`; });
+  // 한글 2글자 이상 → 탭 가능한 span
+  const step2 = step1.replace(/[가-힣]{2,}/g, w => {
+    const cls = markedWords.has(w) ? 'word-tap word-link' : 'word-tap';
+    return `<span class="${cls}" data-word="${esc(w)}">${esc(w)}</span>`;
   });
-  // 2단계: 관련 단어 자동 링크 (이미 링크된 부분 제외)
-  if (extraWords && extraWords.length) {
-    // 길이 긴 단어부터 처리 (짧은 단어가 긴 단어 일부를 먼저 치환하는 것 방지)
-    const sorted = [...extraWords].filter(w => w && w.length >= 2).sort((a,b) => b.length - a.length);
-    sorted.forEach(w => {
-      const escaped = esc(w);
-      // 이미 data-word 안에 있는 건 건드리지 않음 — 텍스트 노드만 치환
-      const safe = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      result = result.replace(
-        new RegExp(`(?<!data-word="[^"]*)(${safe})(?=[^"]*(?:"|<|$))`, 'g'),
-        (match, p1, offset, str) => {
-          // 이미 태그 속성 안이면 건너뜀
-          const before = str.slice(0, offset);
-          const openTags = (before.match(/</g) || []).length;
-          const closeTags = (before.match(/>/g) || []).length;
-          if (openTags > closeTags) return match; // 태그 안쪽
-          return `<span class="word-link" data-word="${escaped}">${escaped}</span>`;
-        }
-      );
-    });
-  }
-  return result;
+  // 임시 마커 제거
+  return step2.replace(/【|】/g, '');
 }
 
-// 설명/예문 영역 클릭 이벤트 위임 — 문서 로드 후 한 번만 등록
+// 설명/예문 단어 탭 이벤트 위임
 document.addEventListener('click', e => {
-  const link = e.target.closest('.word-link[data-word]');
-  if (!link) return;
-  const word = link.dataset.word;
-  if (word) quickSearch(word);
+  const span = e.target.closest('.word-tap[data-word]');
+  if (!span) return;
+  quickSearch(span.dataset.word);
 });
 
 // ── 빠른 검색 (카운트 증가 없음) ──────────
@@ -597,9 +574,9 @@ function renderResult(word, p) {
   document.getElementById('wordEmoji').textContent    = p.emoji   || '📖';
   document.getElementById('wordBig').textContent      = word;
   document.getElementById('wordReading').textContent  = p.reading || '';
-  document.getElementById('explainDef').innerHTML     = renderLinkedDef(p.definition, [...(p.synonyms||[]), ...(p.antonyms||[]), ...(p.related||[])]);
+  document.getElementById('explainDef').innerHTML     = renderLinkedDef(p.definition);
   const exampleText = (p.example || '').replace(/^"|"$/g, '');
-  document.getElementById('explainExample').innerHTML = renderLinkedDef(exampleText, [...(p.synonyms||[]), ...(p.antonyms||[]), ...(p.related||[])]);
+  document.getElementById('explainExample').innerHTML = renderLinkedDef(exampleText);
 
   document.getElementById('synonymChips').innerHTML = (p.synonyms || [])
     .map(w => `<button class="wchip" onclick="quickSearch('${esc(w)}')">${esc(w)}</button>`).join('');
