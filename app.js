@@ -444,19 +444,21 @@ function initSheetDrag(sheetId, closeFn) {
 }
 
 // ── 단어 링크 렌더링 ─────────────────────
-// 한글 1글자 이상 / 영문 / 숫자 모두 탭 가능한 span으로 감쌈
+// 공백 기준 어절 단위로 탭 가능한 span으로 감쌈
 // [단어] 형식은 word-link(강조) 스타일 추가 적용
 function renderLinkedDef(text) {
   if (!text) return '';
-  // [단어] 표시를 임시 마커로 보존
   const markedWords = new Set();
   const step1 = text.replace(/\[([^\]]+)\]/g, (_, w) => { markedWords.add(w); return `【${w}】`; });
-  // 한글 1글자 이상 / 영숫자 연속 → 탭 가능한 span
-  const step2 = step1.replace(/[가-힣]+|[A-Za-z0-9]+/g, w => {
-    const cls = markedWords.has(w) ? 'word-tap word-link' : 'word-tap';
-    return `<span class="${cls}" data-word="${esc(w)}">${esc(w)}</span>`;
+  // 공백 기준으로 토큰 분리 → 각 어절을 span으로 감싸기
+  const step2 = step1.replace(/\S+/g, token => {
+    // 앞뒤 구두점 분리 (예: "행복해요." → "행복해요" + ".")
+    const m = token.match(/^([^가-힣A-Za-z0-9]*)([가-힣A-Za-z0-9].*?[가-힣A-Za-z0-9]|[가-힣A-Za-z0-9])([^가-힣A-Za-z0-9]*)$/);
+    if (!m) return esc(token);
+    const [, pre, word, post] = m;
+    const cls = markedWords.has(word) ? 'word-tap word-link' : 'word-tap';
+    return `${esc(pre)}<span class="${cls}" data-word="${esc(word)}">${esc(word)}</span>${esc(post)}`;
   });
-  // 임시 마커 제거
   return step2.replace(/【|】/g, '');
 }
 
