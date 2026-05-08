@@ -448,18 +448,27 @@ function initSheetDrag(sheetId, closeFn) {
 // [단어] 형식은 word-link(강조) 스타일 추가 적용
 function renderLinkedDef(text) {
   if (!text) return '';
-  const markedWords = new Set();
-  const step1 = text.replace(/\[([^\]]+)\]/g, (_, w) => { markedWords.add(w); return `【${w}】`; });
-  // 공백 기준으로 토큰 분리 → 각 어절을 span으로 감싸기
-  const step2 = step1.replace(/\S+/g, token => {
-    // 앞뒤 구두점 분리 (예: "행복해요." → "행복해요" + ".")
-    const m = token.match(/^([^가-힣A-Za-z0-9]*)([가-힣A-Za-z0-9].*?[가-힣A-Za-z0-9]|[가-힣A-Za-z0-9])([^가-힣A-Za-z0-9]*)$/);
-    if (!m) return esc(token);
-    const [, pre, word, post] = m;
-    const cls = markedWords.has(word) ? 'word-tap word-link' : 'word-tap';
-    return `${esc(pre)}<span class="${cls}" data-word="${esc(word)}">${esc(word)}</span>${esc(post)}`;
+
+  // 1) [단어] → 강조 span으로 먼저 치환
+  const step1 = text.replace(/\[([^\]]+)\]/g, (_, w) =>
+    `<span class="word-tap word-link" data-word="${esc(w)}">${esc(w)}</span>`
+  );
+
+  // 2) 이미 span 태그가 된 부분은 건드리지 않고, 나머지 텍스트 노드만 어절 처리
+  // HTML을 파트별로 분리 (태그 vs 텍스트)
+  const result = step1.replace(/(<[^>]*>.*?<\/[^>]+>|<[^>]+>)|([^<]+)/g, (match, tag, textNode) => {
+    if (tag) return tag; // 이미 태그(열기+닫기 포함)면 그대로
+    // 텍스트 노드: 공백 기준 어절마다 span 감싸기
+    return textNode.replace(/\S+/g, token => {
+      // 앞뒤 구두점 분리
+      const m = token.match(/^([^\uAC00-\uD7A3A-Za-z0-9]*)([^\uAC00-\uD7A3A-Za-z0-9].*?[^\uAC00-\uD7A3A-Za-z0-9]|[\uAC00-\uD7A3A-Za-z0-9][^\uAC00-\uD7A3A-Za-z0-9]*|[\uAC00-\uD7A3A-Za-z0-9]+)([^\uAC00-\uD7A3A-Za-z0-9]*)$/);
+      if (!m || !m[2].trim()) return esc(token);
+      const [, pre, word, post] = m;
+      return `${esc(pre)}<span class="word-tap" data-word="${esc(word)}">${esc(word)}</span>${esc(post)}`;
+    });
   });
-  return step2.replace(/【|】/g, '');
+
+  return result;
 }
 
 // 설명/예문 단어 탭 이벤트 위임
